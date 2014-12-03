@@ -2,7 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "logic.h"
+//#include "logic.h"
+#include "graphtab.h"
 
 namespace Ui {
 class MainWindow;
@@ -19,18 +20,17 @@ public:
 private slots:
     void poll();
 
-    void on_addTab_clicked();
+//    void on_addTab_clicked();
 
-    void on_views_tabBarClicked(int index);
+//    void on_views_tabBarClicked(int index);
 
 private:
     Ui::MainWindow *ui;
-    mapper_monitor monitor;
-    mapper_db db;
-    int updateFlags;
+    mapperGUIData data;
+    GraphTab *overviewTab;
     int numTabs;
     int currentTab;
-    tab *tabs;
+//    tab *tabs;
 };
 
 #endif // MAINWINDOW_H

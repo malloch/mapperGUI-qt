@@ -12,17 +12,27 @@ TARGET = mapperGUI-qt
 TEMPLATE = app
 
 CONFIG += c++11
+#QMAKE_CXXFLAGS += -stdlib=libc++ -std=c++11
+#LIBS += -stdlib=libc++
 
 #DEFINES += __GXX_EXPERIMENTAL_CXX0X__
 
 SOURCES += main.cpp\
         mainwindow.cpp \
     logic.cpp \
-    linkPane.cpp
+    graphnode.cpp \
+    graphedge.cpp \
+    graphtab.cpp \
+#    listtab.cpp \
+    tab.cpp
 
 HEADERS  += mainwindow.h \
     logic.h \
-    linkPane.h
+    graphnode.h \
+    graphedge.h \
+    graphtab.h \
+#    listtab.h \
+    tab.h
 
 FORMS    += mainwindow.ui
 
