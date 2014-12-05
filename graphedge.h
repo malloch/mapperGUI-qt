@@ -59,10 +59,12 @@ public:
 
     enum { Type = UserType + 2 };
     int type() const Q_DECL_OVERRIDE { return Type; }
+    bool selected;
 
 protected:
     QRectF boundingRect() const Q_DECL_OVERRIDE;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) Q_DECL_OVERRIDE;
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE;
 
 private:
     GraphNode *source, *dest;
@@ -70,6 +72,7 @@ private:
     QPointF sourcePoint;
     QPointF destPoint;
     qreal arrowSize;
+    GraphTab *graph;
 };
 
 #endif // EDGE_H

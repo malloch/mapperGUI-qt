@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // try adding a new graphTab
     overviewTab = new GraphTab(ui->views, data);
+    ui->views->setCurrentIndex(0);
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(poll()));
@@ -52,12 +53,11 @@ MainWindow::~MainWindow()
 void MainWindow::poll()
 {
     int count = mapper_monitor_poll(data->monitor, 0);
-    if (count)
-        printf("received %i messages from monitor\n", count);
+//    if (count)
+
     // drawing updates depend on current mode...
     if (data->deviceFlags) {
         // for now assume that the overview graph tab is selected
-        printf("should be calling overviewTab deviceEvent()\n");
         overviewTab->deviceEvent();
 
         ui->srcTree->clear();

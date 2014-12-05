@@ -55,11 +55,31 @@ GraphNode::GraphNode(GraphTab *graphWidget, const char *_name)
     : graph(graphWidget)
 {
     setFlags(ItemIsSelectable | ItemIsMovable | ItemSendsGeometryChanges);
+    setAcceptedMouseButtons(Qt::LeftButton);
     setCacheMode(DeviceCoordinateCache);
     setZValue(-1);
     name = strdup(_name);
     label = new QGraphicsTextItem(name, this);
     label->setPos(20, -30);
+    int quadrant = rand() % 4;
+    QPoint position;
+    switch (quadrant) {
+    case 0:
+        position = QPoint(-30, rand() % graph->height());
+        break;
+    case 1:
+        position = QPoint(graph->width() + 30, rand() % graph->height());
+        break;
+    case 2:
+        position = QPoint(rand() % graph->width(), -30);
+        break;
+    default:
+        position = QPoint(rand() % graph->width(), graph->height() + 30);
+        break;
+    }
+    setPos(position);
+    velocity = QPoint(0, 0);
+    selected = false;
 }
 
 GraphNode::~GraphNode()
@@ -95,14 +115,14 @@ QList<GraphEdge *> GraphNode::edges() const
 void GraphNode::calculateForces()
 {
     if (!scene() || scene()->mouseGrabberItem() == this) {
-        newPos = pos();
+        velocity = QPointF(0, 0);
         return;
     }
 
     // constants
     qreal Kr = 90000;          // repulsion constant
-    qreal Ks = 3;          // string constant
-    qreal L = 200;           // spring rest length
+    qreal Ks = 1;          // spring constant
+    qreal L = 150;           // spring rest length
     qreal delta_t = 0.050;  // 50 ms timestep
 
     // Repulsion forces
@@ -125,8 +145,8 @@ void GraphNode::calculateForces()
         }
         else {
             // add a small random force
-            fx += rand() % 100;
-            fy += rand() % 100;
+            fx += rand() % 2;
+            fy += rand() % 2;
         }
     }
 
@@ -147,6 +167,11 @@ void GraphNode::calculateForces()
         }
     }
 
+    // Attraction from centre
+    QPointF vec = mapToScene(pos());
+    fx -= (vec.x() - scene()->width() * 0.5) * 0.01;
+    fy -= (vec.y() - scene()->height() * 0.5) * 0.01;
+
     double dx = fx * delta_t;
     double dy = fy * delta_t;
 //    double displacementSquared = dx*dx + dy*dy;
@@ -156,21 +181,24 @@ void GraphNode::calculateForces()
 //        dy *= s;
 //    }
 
-    if (qAbs(dx) < 0.1 && qAbs(dy) < 0.1)
-        dx = dy = 0;
+    if (qAbs(dx) < 0.1)
+        dx = 0;
+    if (qAbs(dy) < 0.1)
+        dy = 0;
 
     QRectF sceneRect = scene()->sceneRect();
-    newPos = pos() + QPointF(dx, dy);
-    newPos.setX(qMin(qMax(newPos.x(), sceneRect.left() + 10), sceneRect.right() - 10));
-    newPos.setY(qMin(qMax(newPos.y(), sceneRect.top() + 10), sceneRect.bottom() - 10));
+    velocity += QPointF(dx, dy);
+//    newPos.setX(qMin(qMax(newPos.x(), sceneRect.left() + 10), sceneRect.right() - 10));
+//    newPos.setY(qMin(qMax(newPos.y(), sceneRect.top() + 10), sceneRect.bottom() - 10));
 }
 
 bool GraphNode::tick()
 {
-    if (newPos == pos())
+    if (velocity.x() == 0 && velocity.y() == 0)
         return false;
 
-    setPos(newPos);
+    setPos(pos() + velocity);
+    velocity *= 0.8;
     return true;
 }
 
@@ -189,7 +217,10 @@ QPainterPath GraphNode::shape() const
 
 void GraphNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
-    painter->setPen(QPen(Qt::black, 2));
+    if (selected)
+        painter->setPen(QPen(Qt::red, 2));
+    else
+        painter->setPen(QPen(Qt::black, 2));
 //    painter->setBrush(Qt::red);
     painter->drawEllipse(-25, -25, 50, 50);
 //    painter->drawText(QRect(pos().x), QString("foo"));
@@ -212,8 +243,17 @@ QVariant GraphNode::itemChange(GraphicsItemChange change, const QVariant &value)
 
 void GraphNode::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    if (selected)
+        selected = false;
+    else {
+        graph->unselectEdges();
+        if (event->modifiers() ^ Qt::ShiftModifier) {
+            graph->unselectNodes();
+        }
+        selected = true;
+    }
     update();
-    QGraphicsItem::mousePressEvent(event);
+//    QGraphicsItem::mousePressEvent(event);
 }
 
 void GraphNode::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
@@ -221,3 +261,4 @@ void GraphNode::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     update();
     QGraphicsItem::mouseReleaseEvent(event);
 }
+

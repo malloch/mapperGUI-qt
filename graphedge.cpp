@@ -40,23 +40,27 @@
 
 #include "graphedge.h"
 #include "graphnode.h"
+#include "graphtab.h"
 
 #include <math.h>
 
 #include <QPainter>
+#include <QGraphicsSceneMouseEvent>
 
 static const double Pi = 3.14159265358979323846264338327950288419717;
 static double TwoPi = 2.0 * Pi;
 
 GraphEdge::GraphEdge(GraphTab *graphWidget, GraphNode *sourceNode, GraphNode *destNode)
-    : arrowSize(10)
+    : graph(graphWidget), arrowSize(10)
 {
-    setAcceptedMouseButtons(0);
+    setFlags(ItemIsSelectable);
+    setAcceptedMouseButtons(Qt::LeftButton);
     source = sourceNode;
     dest = destNode;
     source->addEdge(this);
     dest->addEdge(this);
     adjust();
+    selected = false;
 }
 
 GraphEdge::~GraphEdge()
@@ -87,7 +91,7 @@ void GraphEdge::adjust()
     prepareGeometryChange();
 
     if (length > qreal(20.)) {
-        QPointF edgeOffset((line.dx() * 10) / length, (line.dy() * 10) / length);
+        QPointF edgeOffset((line.dx() * 25) / length, (line.dy() * 25) / length);
         sourcePoint = line.p1() + edgeOffset;
         destPoint = line.p2() - edgeOffset;
     } else {
@@ -119,7 +123,10 @@ void GraphEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
         return;
 
     // Draw the line itself
-    painter->setPen(QPen(Qt::black, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    if (selected)
+        painter->setPen(QPen(Qt::red, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    else
+        painter->setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     painter->drawLine(line);
 
     // Draw the arrows
@@ -136,7 +143,25 @@ void GraphEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
     QPointF destArrowP2 = destPoint + QPointF(sin(angle - Pi + Pi / 3) * arrowSize,
                                               cos(angle - Pi + Pi / 3) * arrowSize);
 
-    painter->setBrush(Qt::black);
+    if (selected)
+        painter->setBrush(Qt::red);
+    else
+        painter->setBrush(Qt::black);
     painter->drawPolygon(QPolygonF() << line.p1() << sourceArrowP1 << sourceArrowP2);
     painter->drawPolygon(QPolygonF() << line.p2() << destArrowP1 << destArrowP2);
+}
+
+void GraphEdge::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (selected)
+        selected = false;
+    else {
+        graph->unselectNodes();
+        if (event->modifiers() ^ Qt::ShiftModifier) {
+            graph->unselectEdges();
+        }
+        selected = true;
+    }
+    update();
+//    QGraphicsItem::mousePressEvent(event);
 }
