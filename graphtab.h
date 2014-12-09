@@ -1,10 +1,7 @@
 #ifndef GRAPHTAB_H
 #define GRAPHTAB_H
 
-//#include <QColor>
-//#include <QVector>
 #include <QTabWidget>
-////#include <QGraphicsScene>
 #include <QGraphicsView>
 
 #include "tab.h"
@@ -17,7 +14,7 @@ class GraphTab : public Tab
     Q_OBJECT
 
 public:
-    GraphTab(QTabWidget *parent, mapperGUIData data);
+    GraphTab(QTabWidget *parent, mapperGUIData _data);
     ~GraphTab();
 
     void update();
@@ -28,12 +25,9 @@ public:
     void unselectEdges();
 
     int numObjects;
-//    QList<GraphNode *> nodes;
-//    QList<GraphEdge *> edges;
     QGraphicsScene *scene;
 
 public slots:
-//    void animate();
     void zoomIn();
     void zoomOut();
 
@@ -42,7 +36,6 @@ protected:
 #ifndef QT_NO_WHEELEVENT
     void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE;
 #endif
-////    void drawBackground(QPainter *painter, const QRectF &rect) Q_DECL_OVERRIDE;
     void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 
     void scaleView(qreal scaleFactor);

@@ -35,6 +35,13 @@ typedef struct _mapperGUIData
     int connectionFlags;
 } t_mapperGUIData, *mapperGUIData;
 
+typedef struct _displayBuffer
+{
+    float data[100];
+    int index;
+    int length;
+} t_displayBuffer, *displayBuffer;
+
 // function prototypes
 void deviceHandler(mapper_db_device dev, mapper_db_action_t a, void *user);
 void linkHandler(mapper_db_link lnk, mapper_db_action_t a, void *user);

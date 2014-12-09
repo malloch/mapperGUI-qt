@@ -1,14 +1,34 @@
 #ifndef LISTTAB_H
 #define LISTTAB_H
 
-#include <QTabWidget>
+#include "tab.h"
+#include "signallist.h"
+#include "linkview.h"
+#include "connectionprops.h"
 
-class ListTab : public QWidget
+#include <QTabWidget>
+#include <QSplitter>
+#include <QGroupBox>
+#include <QVBoxLayout>
+
+class ListTab : public Tab
 {
 //    Q_OBJECT
 
 public:
-    ListTab();
+    ListTab(QTabWidget *parent, mapperGUIData data);
+    ~ListTab();
+
+    void update();
+    void deviceEvent();
+    void linkEvent();
+
+private:
+    ConnectionProps *props;
+    SignalList *sources;
+    SignalList *destinations;
+    LinkView *links;
+    mapperGUIData data;
 };
 
 #endif // LISTTAB_H

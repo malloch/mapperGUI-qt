@@ -3,7 +3,9 @@
 
 #include <QMainWindow>
 //#include "logic.h"
+#include "tab.h"
 #include "graphtab.h"
+#include "listtab.h"
 
 namespace Ui {
 class MainWindow;
@@ -20,17 +22,14 @@ public:
 private slots:
     void poll();
 
-//    void on_addTab_clicked();
-
-//    void on_views_tabBarClicked(int index);
-
 private:
     Ui::MainWindow *ui;
     mapperGUIData data;
+    QList<Tab *> tabs;
     GraphTab *overviewTab;
+    ListTab *listTab;
     int numTabs;
     int currentTab;
-//    tab *tabs;
 };
 
 #endif // MAINWINDOW_H

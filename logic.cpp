@@ -28,3 +28,9 @@ void connectionHandler(mapper_db_connection con, mapper_db_action_t action, void
     int *flags = (int*)user;
     *flags |= 1 << action;
 }
+
+void signalHandler(mapper_signal sig, mapper_db_signal props, int instance_id,
+                   void *value, int count, mapper_timetag_t *timetag)
+{
+    displayBuffer *b = (displayBuffer*) props->user_data;
+}

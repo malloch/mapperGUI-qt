@@ -1,7 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-//#include "logic.h"
-//#include "graphtab.h"
 #include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -9,19 +7,31 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->centralWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    ui->centralWidget->layout()->setSpacing(0);
+//    ui->tabs->layout()->setContentsMargins(0, 0, 0, 0);
+//    setCentralWidget(ui->tabs);
 
     data = (mapperGUIData) calloc(1, sizeof(struct _mapperGUIData));
 
-    data->monitor = mapper_monitor_new(0, SUB_DEVICE);
+    data->admin = mapper_admin_new(0, 0, 0);
+    data->monitor = mapper_monitor_new(data->admin, SUB_DEVICE);
     data->db = mapper_monitor_get_db(data->monitor);
     mapper_db_add_device_callback(data->db, deviceHandler, &data->deviceFlags);
     mapper_db_add_link_callback(data->db, linkHandler, &data->linkFlags);
     mapper_db_add_signal_callback(data->db, signalHandler, &data->signalFlags);
     mapper_db_add_connection_callback(data->db, connectionHandler, &data->connectionFlags);
 
-    // try adding a new graphTab
-    overviewTab = new GraphTab(ui->views, data);
-    ui->views->setCurrentIndex(0);
+    data->device = mdev_new("_monitor", 0, data->admin);
+
+    // try adding a new ListTab
+    listTab = new ListTab(ui->tabs, data);
+    tabs << listTab;
+
+    // try adding a new GraphTab
+    overviewTab = new GraphTab(ui->tabs, data);
+    tabs << overviewTab;
+    ui->tabs->setCurrentIndex(0);
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(poll()));
@@ -30,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    // save mapping?
+    // save mapping(s)?
     // close all tabs
     delete ui;
     if (data) {
@@ -53,66 +63,26 @@ MainWindow::~MainWindow()
 void MainWindow::poll()
 {
     int count = mapper_monitor_poll(data->monitor, 0);
-//    if (count)
-
-    // drawing updates depend on current mode...
-    if (data->deviceFlags) {
-        // for now assume that the overview graph tab is selected
-        overviewTab->deviceEvent();
-
-        ui->srcTree->clear();
-        ui->dstTree->clear();
-        mapper_db_device *pdev = mapper_db_get_all_devices(data->db);
-        while (pdev) {
-            if ((*pdev)->num_outputs > 0) {
-                QTreeWidgetItem *dev = new QTreeWidgetItem((QTreeWidget*)0,
-                                                           QStringList(QString((*pdev)->name)));
-                ui->srcTree->insertTopLevelItem(0, dev);
-                mapper_db_signal *psig = mapper_db_get_outputs_by_device_name(data->db, (*pdev)->name);
-                while (psig) {
-                    QTreeWidgetItem *sig = new QTreeWidgetItem();
-                    sig->setText(0, QString((*psig)->name));
-                    sig->setText(1, QString(QChar((*psig)->type)));
-                    sig->setText(2, QString::number((*psig)->length));
-                    dev->addChild(sig);
-                    psig = mapper_db_signal_next(psig);
-                }
-            }
-            if ((*pdev)->num_inputs > 0) {
-                QTreeWidgetItem *dev = new QTreeWidgetItem((QTreeWidget*)0,
-                                                           QStringList(QString((*pdev)->name)));
-                ui->dstTree->insertTopLevelItem(0, dev);
-                mapper_db_signal *psig = mapper_db_get_inputs_by_device_name(data->db, (*pdev)->name);
-                while (psig) {
-                    QTreeWidgetItem *sig = new QTreeWidgetItem();
-                    sig->setText(0, QString((*psig)->name));
-                    sig->setText(1, QString(QChar((*psig)->type)));
-                    sig->setText(2, QString::number((*psig)->length));
-                    dev->addChild(sig);
-                    psig = mapper_db_signal_next(psig);
-                }
-            }
-            pdev = mapper_db_device_next(pdev);
+    mdev_poll(data->device, 0);
+    if (count) {
+        // drawing updates depend on current mode...
+        if (data->deviceFlags) {
+            printf("Should be calling device events...\n");
+            // for now assume that the overview graph tab is selected
+            foreach (Tab *tab, tabs)
+                tab->deviceEvent();
+            data->deviceFlags = 0;
         }
-        data->deviceFlags = 0;
+        if (data->linkFlags) {
+            foreach(Tab *tab, tabs)
+                tab->linkEvent();
+            data->linkFlags = 0;
+        }
     }
-    if (data->linkFlags) {
-        overviewTab->linkEvent();
-        data->linkFlags = 0;
-    }
-//    if (data->connectionFlags) {
-//        QGraphicsScene *scene = new QGraphicsScene(this);
-//        ui->links->setScene(scene);
 
-//        scene->addRect(100, 0, 80, 100, QPen(Qt::black), QBrush(Qt::blue));
-//        float width = ui->links->width();
-//        QPainterPath *path = new QPainterPath();
-//        path->moveTo(0, 0);
-//        path->cubicTo(20, 0, 40, 40, 60, 40);
-//        scene->addPath(*path, QPen(Qt::black, 2));
-//        data->connectionFlags = 0;
-//    }
-    overviewTab->update();
+    // TODO: don't update unless tab is selected
+    foreach (Tab *tab, tabs)
+        tab->update();
 }
 
 //void MainWindow::on_views_tabBarClicked(int index)

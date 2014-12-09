@@ -23,18 +23,30 @@ SOURCES += main.cpp\
     graphnode.cpp \
     graphedge.cpp \
     graphtab.cpp \
-#    listtab.cpp \
-    tab.cpp
+    listtab.cpp \
+    tab.cpp \
+    linkview.cpp \
+    connectionprops.cpp \
+    signallist.cpp \
+    connectionprops2.cpp
 
 HEADERS  += mainwindow.h \
     logic.h \
     graphnode.h \
     graphedge.h \
     graphtab.h \
-#    listtab.h \
-    tab.h
+    listtab.h \
+    tab.h \
+    linkview.h \
+    connectionprops.h \
+    signallist.h \
+    connectionprops2.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    linkview.ui \
+    connectionprops.ui \
+    signallist.ui \
+    connectionprops2.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../../usr/local/lib/release/ -lmapper-0
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../../usr/local/lib/debug/ -lmapper-0

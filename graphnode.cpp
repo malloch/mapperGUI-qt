@@ -61,16 +61,13 @@ GraphNode::GraphNode(GraphTab *graphWidget, const char *_name)
     name = strdup(_name);
     label = new QGraphicsTextItem(name, this);
     label->setPos(20, -30);
-    int quadrant = rand() % 4;
+    int quadrant = rand() % 3;
     QPoint position;
     switch (quadrant) {
     case 0:
-        position = QPoint(-30, rand() % graph->height());
-        break;
-    case 1:
         position = QPoint(graph->width() + 30, rand() % graph->height());
         break;
-    case 2:
+    case 1:
         position = QPoint(rand() % graph->width(), -30);
         break;
     default:
@@ -167,9 +164,16 @@ void GraphNode::calculateForces()
         }
     }
 
-    // Attraction from centre
+    // Attraction from centre or left window margin
     QPointF vec = mapToScene(pos());
-    fx -= (vec.x() - scene()->width() * 0.5) * 0.01;
+    if (vec.x()-scene()->sceneRect().left() < 50) {
+//        fx -= (vec.x() - scene()->sceneRect().left() + 100) * 0.01;
+        // TODO: disallow drifting into staging area
+        fx = 0;
+    }
+    else
+        fx -= (vec.x() - scene()->width() * 0.5) * 0.01;
+
     fy -= (vec.y() - scene()->height() * 0.5) * 0.01;
 
     double dx = fx * delta_t;
@@ -186,10 +190,7 @@ void GraphNode::calculateForces()
     if (qAbs(dy) < 0.1)
         dy = 0;
 
-    QRectF sceneRect = scene()->sceneRect();
     velocity += QPointF(dx, dy);
-//    newPos.setX(qMin(qMax(newPos.x(), sceneRect.left() + 10), sceneRect.right() - 10));
-//    newPos.setY(qMin(qMax(newPos.y(), sceneRect.top() + 10), sceneRect.bottom() - 10));
 }
 
 bool GraphNode::tick()
@@ -197,6 +198,10 @@ bool GraphNode::tick()
     if (velocity.x() == 0 && velocity.y() == 0)
         return false;
 
+    QPointF *newPos = new QPointF(pos() + velocity);
+    QRectF sceneRect = scene()->sceneRect();
+    newPos->setX(qMin(qMax(newPos->x(), sceneRect.left() + 10), sceneRect.right() - 10));
+    newPos->setY(qMin(qMax(newPos->y(), sceneRect.top() + 10), sceneRect.bottom() - 10));
     setPos(pos() + velocity);
     velocity *= 0.8;
     return true;
@@ -221,7 +226,9 @@ void GraphNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         painter->setPen(QPen(Qt::red, 2));
     else
         painter->setPen(QPen(Qt::black, 2));
-//    painter->setBrush(Qt::red);
+    float dist = mapToScene(pos()).x() - scene()->sceneRect().left();
+    if (dist < 100)
+        painter->setBrush(Qt::lightGray);
     painter->drawEllipse(-25, -25, 50, 50);
 //    painter->drawText(QRect(pos().x), QString("foo"));
 }

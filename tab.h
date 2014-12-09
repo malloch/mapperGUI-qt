@@ -4,10 +4,19 @@
 #include <QTabWidget>
 #include "logic.h"
 
+enum tabType {
+    GRAPH_TAB,
+    LIST_TAB,
+};
+
 class Tab : public QTabWidget
 {
 public:
-    Tab(QTabWidget *parent, mapperGUIData data);
+    Tab(QTabWidget *_parent, mapperGUIData data);
+    virtual void update() = 0;
+    virtual void deviceEvent() = 0;
+    virtual void linkEvent() = 0;
+
 private:
     mapperGUIData data;
 };

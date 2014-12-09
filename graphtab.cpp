@@ -51,21 +51,29 @@ GraphTab::GraphTab(QTabWidget *parent, mapperGUIData _data)
     : Tab(parent, _data)
 {
     view = new QGraphicsView();
+    view->setDragMode(QGraphicsView::ScrollHandDrag);
+//    view->ViewportAnchor(QGraphicsView::AnchorUnderMouse);
     scene = new QGraphicsScene();
-    scene->setSceneRect(0, 0, view->width(), view->height());
-    view->setScene(scene);
 
-//    setCacheMode(CacheBackground);
-//    setViewportUpdateMode(BoundingRectViewportUpdate);
+//    scene->setSceneRect(view->width()*-0.5, view->height()*-0.5, view->width()*0.5, view->height()*0.5);
+    view->setScene(scene);
+    QRectF viewRect = view->viewport()->rect();
+    QRectF sceneRect = QRectF(QPointF(viewRect.left()-30, viewRect.top()-30),
+                              QPointF(viewRect.right()+30,viewRect.bottom()+30));
+    view->setSceneRect(sceneRect);
+
+//    float lpos = sceneRect.left() + 200;
+//    scene->addLine(lpos, sceneRect.top(), lpos, sceneRect.bottom());
+
     view->setRenderHint(QPainter::Antialiasing);
-//    setRenderHint(QPainter::SmoothPixmapTransform);
-//    setRenderHint(QPainter::TextAntialiasing);
     view->setRenderHint(QPainter::HighQualityAntialiasing);
 //    view->setTransformationAnchor(AnchorUnderMouse);
 
     QGridLayout *layout = new QGridLayout;
-    layout->addWidget(view, 0, 0);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
     this->setLayout(layout);
+    layout->addWidget(view, 0, 0);
 
     parent->insertTab(0, this, QString("Overview"));
 
@@ -90,6 +98,7 @@ GraphTab::~GraphTab()
 
 void GraphTab::deviceEvent()
 {
+    printf("DEVICE EVENT (graph)\n");
     if (data->deviceFlags & (1 << MDB_NEW)) {
         // need to add new nodes
         mapper_db_device *pdev = mapper_db_get_all_devices(data->db);
@@ -266,46 +275,9 @@ void GraphTab::update()
 #ifndef QT_NO_WHEELEVENT
 void GraphTab::wheelEvent(QWheelEvent *event)
 {
-//    scaleView(pow((double)2, -event->delta() / 240.0));
+    scaleView(pow((double)2, -event->delta() / 240.0));
 }
 #endif
-
-////void GraphTab::drawBackground(QPainter *painter, const QRectF &rect)
-////{
-////    Q_UNUSED(rect);
-
-////    // Shadow
-////    QRectF sceneRect = this->scene->sceneRect();
-////    QRectF rightShadow(sceneRect.right(), sceneRect.top() + 5, 5, sceneRect.height());
-////    QRectF bottomShadow(sceneRect.left() + 5, sceneRect.bottom(), sceneRect.width(), 5);
-////    if (rightShadow.intersects(rect) || rightShadow.contains(rect))
-////        painter->fillRect(rightShadow, Qt::darkGray);
-////    if (bottomShadow.intersects(rect) || bottomShadow.contains(rect))
-////        painter->fillRect(bottomShadow, Qt::darkGray);
-
-////    // Fill
-////    QLinearGradient gradient(sceneRect.topLeft(), sceneRect.bottomRight());
-////    gradient.setColorAt(0, Qt::white);
-////    gradient.setColorAt(1, Qt::lightGray);
-////    painter->fillRect(rect.intersected(sceneRect), gradient);
-////    painter->setBrush(Qt::NoBrush);
-////    painter->drawRect(sceneRect);
-
-////    // Text
-////    QRectF textRect(sceneRect.left() + 4, sceneRect.top() + 4,
-////                    sceneRect.width() - 4, sceneRect.height() - 4);
-////    QString message(tr("Click and drag the nodes around, and zoom with the mouse "
-////                       "wheel or the '+' and '-' keys"));
-
-////    QFont font = painter->font();
-////    font.setBold(true);
-////    font.setPointSize(14);
-////    painter->setFont(font);
-////    painter->setPen(Qt::lightGray);
-////    painter->drawText(textRect.translated(2, 2), message);
-////    painter->setPen(Qt::black);
-////    painter->drawText(textRect, message);
-////}
 
 void GraphTab::scaleView(qreal scaleFactor)
 {
