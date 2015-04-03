@@ -48,106 +48,34 @@ void ListTab::deviceEvent()
     sources->clear();
     destinations->clear();
 
-    mapper_db_device *pdev = mapper_db_get_all_devices(data->db);
-//    printf("data: %p\n", data);
-    mapper_db_signal *psig;
-    while (pdev) {
-        if ((*pdev)->num_outputs > 0) {
-            sources->addDevice(0, *pdev);
-            psig = mapper_db_get_outputs_by_device_name(data->db, (*pdev)->name);
-            while (psig) {
-                if ((*psig)->is_output)
-                    sources->addSignal(0, *psig);
-                psig = mapper_db_signal_next(psig);
+    for (auto const &device : data->db.devices()) {
+        if (device.num_outputs() > 0) {
+            sources->addDevice(0, QString::fromStdString(device.name()));
+            mapper::Db::Signal::Iterator sig = data->db.outputs(device.name()).begin();
+            for (; sig != data->db.outputs(device.name()).end(); sig++) {
+                sources->addSignal(0, QString::fromStdString((*sig).name()),
+                                   QChar((*sig).type()), (*sig).length());
             }
         }
-        if ((*pdev)->num_inputs > 0) {
-            destinations->addDevice(0, *pdev);
-            psig = mapper_db_get_inputs_by_device_name(data->db, (*pdev)->name);
-            while (psig) {
-                if (!(*psig)->is_output)
-                    destinations->addSignal(0, *psig);
-                psig = mapper_db_signal_next(psig);
+        if (device.num_inputs() > 0) {
+            destinations->addDevice(0, QString::fromStdString(device.name()));
+            mapper::Db::Signal::Iterator sig = data->db.outputs(device.name()).begin();
+            for (; sig != data->db.outputs(device.name()).end(); sig++) {
+                destinations->addSignal(0, QString::fromStdString((*sig).name()),
+                                        QChar((*sig).type()), (*sig).length());
             }
         }
-        pdev = mapper_db_device_next(pdev);
     }
 }
 
-void ListTab::linkEvent()
+void ListTab::signalEvent()
 {
-    printf("ListTab: linkevent\n");
-    links->clear();
-    mapper_db_link *plnk = mapper_db_get_all_links(data->db);
-    while (plnk) {
-        // find source offset
-        // find destination offset
-        // TODO: handler R and L scroll amounts
-        links->addLink(rand()%100, rand()%100);
-        plnk = mapper_db_link_next(plnk);
-    }
-//    if (data->linkFlags & (1 << MDB_NEW)) {
-//        // need to add new nodes
-//        mapper_db_link *plnk = mapper_db_get_all_links(data->db);
-//        while (plnk) {
-//            bool exists = false;
-//            // check if link already exists
-//            foreach (QGraphicsItem *item, scene->items()) {
-//                if (GraphEdge *edge = qgraphicsitem_cast<GraphEdge *>(item)) {
-//                    if ((strcmp((*plnk)->src_name, edge->sourceNode()->name) == 0)
-//                            && (strcmp((*plnk)->dest_name, edge->destNode()->name) == 0)) {
-//                        // link already exists
-//                        exists = true;
-//                        break;
-//                    }
-//                }
-//                if (exists)
-//                    break;
-//            }
-//            if (!exists) {
-//                GraphNode *src = 0, *dest = 0;
-//                // find source node
-//                foreach (QGraphicsItem *item, scene->items()) {
-//                    if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
-//                        if (strcmp((*plnk)->src_name, node->name) == 0) {
-//                            src = node;
-//                            break;
-//                        }
-//                    }
-//                }
-//                if (!src) {
-//                    plnk = mapper_db_link_next(plnk);
-//                    continue;
-//                }
-//                // find destination node
-//                foreach (QGraphicsItem *item, scene->items()) {
-//                    if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
-//                        if (strcmp((*plnk)->dest_name, node->name) == 0) {
-//                            dest = node;
-//                            break;
-//                        }
-//                    }
-//                }
-//                if (dest)
-//                    scene->addItem(new GraphEdge(this, src, dest));
-//            }
-//            plnk = mapper_db_link_next(plnk);
-//        }
-//    }
-//    if (data->linkFlags & (1 << MDB_REMOVE)) {
-//        foreach (QGraphicsItem *item, scene->items()) {
-//            if (GraphEdge *edge = qgraphicsitem_cast<GraphEdge *>(item)) {
-//                // check if link exists in db
-//                mapper_db_link lnk = mapper_db_get_link_by_src_dest_names(data->db,
-//                                                                          edge->sourceNode()->name, edge->destNode()->name);
-//                if (!lnk) {
-//                    edge->sourceNode()->removeEdge(edge);
-//                    edge->destNode()->removeEdge(edge);
-//                    scene->removeItem(edge);
-//                }
-//            }
-//        }
-//    }
+    ;
+}
+
+void ListTab::connectionEvent()
+{
+    ;
 }
 
 void ListTab::update()

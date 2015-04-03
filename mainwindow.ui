@@ -19,494 +19,7 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout_8">
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
-     <number>0</number>
-    </property>
-    <property name="verticalSpacing">
-     <number>-1</number>
-    </property>
-    <item row="0" column="0">
-     <widget class="QTabWidget" name="tabs">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>30</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="tabPosition">
-       <enum>QTabWidget::North</enum>
-      </property>
-      <property name="tabShape">
-       <enum>QTabWidget::Triangular</enum>
-      </property>
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <property name="usesScrollButtons">
-       <bool>true</bool>
-      </property>
-      <property name="tabsClosable">
-       <bool>true</bool>
-      </property>
-      <widget class="QWidget" name="listViewTab">
-       <attribute name="title">
-        <string>Page</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="QSplitter" name="splitter">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>10</horstretch>
-            <verstretch>10</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="handleWidth">
-           <number>5</number>
-          </property>
-          <widget class="QGroupBox" name="propertyEditor">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>5</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="title">
-            <string>Connection Properties</string>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <layout class="QGridLayout" name="properties" rowstretch="0,0,0,1,0,0" columnstretch="0,0,0,0,0,1">
-              <item row="0" column="4">
-               <widget class="QToolButton" name="modeButtonCalibrate">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>20</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>50</width>
-                  <height>23</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Calib</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="3">
-               <widget class="QToolButton" name="modeButtonExpression">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>20</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>50</width>
-                  <height>23</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Expr</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="expressionLabel">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>23</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Expression:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1" rowspan="2" colspan="5">
-               <widget class="QPlainTextEdit" name="expressionEdit">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>10</horstretch>
-                  <verstretch>10</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>20</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QToolButton" name="modeButtonBypass">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>20</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>50</width>
-                  <height>23</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Byp</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QToolButton" name="modeButtonLinear">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>20</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>50</width>
-                  <height>23</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Line</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="5">
-               <spacer name="horizontalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="srcRangeLabel">
-                <property name="text">
-                 <string>Src Range:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="modeLabel">
-                <property name="text">
-                 <string>Mode:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <spacer name="verticalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="3" column="1" colspan="5">
-               <layout class="QHBoxLayout" name="srcRange" stretch="1,0,1">
-                <item>
-                 <widget class="QLineEdit" name="srcRangeMin"/>
-                </item>
-                <item>
-                 <widget class="QToolButton" name="srcRangeSwap">
-                  <property name="text">
-                   <string>...</string>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../../webmapper/images/range_switch.png</normaloff>../../webmapper/images/range_switch.png</iconset>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="srcRangeMax"/>
-                </item>
-               </layout>
-              </item>
-              <item row="4" column="0" rowspan="2">
-               <widget class="QLabel" name="destRangeLabel">
-                <property name="text">
-                 <string>Dest Range:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1" rowspan="2" colspan="5">
-               <layout class="QHBoxLayout" name="dstRange" stretch="0,1,0,1,0">
-                <item>
-                 <widget class="QToolButton" name="dstBoundaryMin">
-                  <property name="text">
-                   <string>None</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="dstRangeMin"/>
-                </item>
-                <item>
-                 <widget class="QToolButton" name="dstRangeSwap">
-                  <property name="text">
-                   <string>...</string>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../../webmapper/images/range_switch.png</normaloff>../../webmapper/images/range_switch.png</iconset>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="dstRangeMax"/>
-                </item>
-                <item>
-                 <widget class="QToolButton" name="dstBoundaryMax">
-                  <property name="text">
-                   <string>None</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="Line" name="line">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QGridLayout" name="gridLayout_4" columnminimumwidth="0">
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <item row="1" column="0">
-               <widget class="QGraphicsView" name="signalPlotter"/>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="signalPlotterLabel">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>23</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Live Signal:</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="layoutWidget">
-           <layout class="QGridLayout" name="listViewer" rowstretch="0,1" columnstretch="1,0,0,0,0,0,0">
-            <item row="0" column="4">
-             <widget class="QLabel" name="dstLabel">
-              <property name="minimumSize">
-               <size>
-                <width>120</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>18</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Destinations</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="6">
-             <widget class="QLineEdit" name="dstSearch">
-              <property name="minimumSize">
-               <size>
-                <width>120</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="clearButtonEnabled">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="4" colspan="3">
-             <widget class="QTreeWidget" name="dstTree">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>20</verstretch>
-               </sizepolicy>
-              </property>
-              <column>
-               <property name="text">
-                <string>name</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>type</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>length</string>
-               </property>
-              </column>
-             </widget>
-            </item>
-            <item row="1" column="0" colspan="3">
-             <widget class="QTreeWidget" name="srcTree">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>20</verstretch>
-               </sizepolicy>
-              </property>
-              <column>
-               <property name="text">
-                <string>name</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>type</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>length</string>
-               </property>
-              </column>
-             </widget>
-            </item>
-            <item row="0" column="3">
-             <widget class="QLabel" name="linkLabel">
-              <property name="font">
-               <font>
-                <pointsize>18</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Links</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="srcLabel">
-              <property name="minimumSize">
-               <size>
-                <width>120</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>18</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Sources</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QLineEdit" name="srcSearch">
-              <property name="minimumSize">
-               <size>
-                <width>120</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="acceptDrops">
-               <bool>false</bool>
-              </property>
-              <property name="frame">
-               <bool>true</bool>
-              </property>
-              <property name="clearButtonEnabled">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="3">
-             <widget class="QGraphicsView" name="links"/>
-            </item>
-            <item row="0" column="1">
-             <widget class="QComboBox" name="srcPrefixSearch">
-              <property name="minimumSize">
-               <size>
-                <width>120</width>
-                <height>0</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="5">
-             <widget class="QComboBox" name="dstPrefixSearch">
-              <property name="minimumSize">
-               <size>
-                <width>120</width>
-                <height>0</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-    </item>
-   </layout>
-  </widget>
+  <widget class="QTabWidget" name="tabs"/>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
@@ -516,16 +29,235 @@
      <height>22</height>
     </rect>
    </property>
-  </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
+   <widget class="QMenu" name="menuMapperGUI">
+    <property name="title">
+     <string>mapperGUI</string>
+    </property>
+    <addaction name="actionAbout_mapperGUI"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreferences"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit_mapperGUI"/>
+   </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNew_Project"/>
+    <addaction name="actionOpen_Project"/>
+    <addaction name="actionOpen_Recent"/>
+    <addaction name="separator"/>
+    <addaction name="actionClose_Project"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_As"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="actionOpen_Version_History"/>
+    <addaction name="separator"/>
+    <addaction name="actionSelect_All"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="separator"/>
+    <addaction name="actionSelect_All_2"/>
+    <addaction name="separator"/>
+    <addaction name="actionMute_Selecetd"/>
+    <addaction name="separator"/>
+    <addaction name="actionFind"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <widget class="QMenu" name="menuSwitch_view">
+     <property name="title">
+      <string>Switch view</string>
+     </property>
+     <addaction name="actionList_View"/>
+     <addaction name="actionGraph_View"/>
+     <addaction name="actionGrid_View"/>
+     <addaction name="actionHive_Plot"/>
+     <addaction name="actionBalloon_Plot"/>
+    </widget>
+    <addaction name="actionNew_Tab"/>
+    <addaction name="separator"/>
+    <addaction name="menuSwitch_view"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionOpen_Expression_Editor"/>
+    <addaction name="actionHide_Expression_Editor"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionSearch"/>
+    <addaction name="actionDocumentation"/>
+    <addaction name="separator"/>
+    <addaction name="actionLibmapper_org"/>
+   </widget>
+   <addaction name="menuMapperGUI"/>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionAbout_mapperGUI">
+   <property name="text">
+    <string>About mapperGUI</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionQuit_mapperGUI">
+   <property name="text">
+    <string>Quit mapperGUI</string>
+   </property>
+  </action>
+  <action name="actionNew_Project">
+   <property name="text">
+    <string>New Project...</string>
+   </property>
+  </action>
+  <action name="actionOpen_Project">
+   <property name="text">
+    <string>Open Project...</string>
+   </property>
+  </action>
+  <action name="actionOpen_Recent">
+   <property name="text">
+    <string>Open Recent...</string>
+   </property>
+  </action>
+  <action name="actionClose_Project">
+   <property name="text">
+    <string>Close Project</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionSave_As">
+   <property name="text">
+    <string>Save As...</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Redo</string>
+   </property>
+  </action>
+  <action name="actionOpen_Version_History">
+   <property name="text">
+    <string>Open Version History</string>
+   </property>
+  </action>
+  <action name="actionSelect_All">
+   <property name="text">
+    <string>Cut</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+  </action>
+  <action name="actionSelect_All_2">
+   <property name="text">
+    <string>Select All</string>
+   </property>
+  </action>
+  <action name="actionMute_Selecetd">
+   <property name="text">
+    <string>Mute Selected</string>
+   </property>
+  </action>
+  <action name="actionFind">
+   <property name="text">
+    <string>Find</string>
+   </property>
+  </action>
+  <action name="actionSearch">
+   <property name="text">
+    <string>Search</string>
+   </property>
+  </action>
+  <action name="actionDocumentation">
+   <property name="text">
+    <string>Documentation</string>
+   </property>
+  </action>
+  <action name="actionLibmapper_org">
+   <property name="text">
+    <string>libmapper.org</string>
+   </property>
+  </action>
+  <action name="actionNew_Tab">
+   <property name="text">
+    <string>New Tab</string>
+   </property>
+  </action>
+  <action name="actionList_View">
+   <property name="text">
+    <string>List View</string>
+   </property>
+  </action>
+  <action name="actionGraph_View">
+   <property name="text">
+    <string>Graph View</string>
+   </property>
+  </action>
+  <action name="actionGrid_View">
+   <property name="text">
+    <string>Grid View</string>
+   </property>
+  </action>
+  <action name="actionHive_Plot">
+   <property name="text">
+    <string>Hive Plot</string>
+   </property>
+  </action>
+  <action name="actionBalloon_Plot">
+   <property name="text">
+    <string>Balloon Plot</string>
+   </property>
+  </action>
+  <action name="actionOpen_Expression_Editor">
+   <property name="text">
+    <string>Show Expression Editor</string>
+   </property>
+  </action>
+  <action name="actionHide_Expression_Editor">
+   <property name="text">
+    <string>Hide Expression Editor</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

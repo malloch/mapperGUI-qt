@@ -54,6 +54,7 @@ public:
 
     GraphNode *sourceNode() const;
     GraphNode *destNode() const;
+    int hash;
 
     void adjust();
 

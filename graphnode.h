@@ -54,7 +54,7 @@ QT_END_NAMESPACE
 class GraphNode : public QGraphicsItem
 {
 public:
-    GraphNode(GraphTab *graphWidget, const char *_name);
+    GraphNode(GraphTab *graphWidget, std::string _name, GraphNode *_parent);
     ~GraphNode();
 
     void addEdge(GraphEdge *edge);
@@ -63,7 +63,8 @@ public:
 
     enum { Type = UserType + 1 };
     int type() const Q_DECL_OVERRIDE { return Type; }
-    const char *name;
+    std::string name;
+    int hash;
     QGraphicsTextItem *label;
     bool touched;
 
@@ -74,6 +75,7 @@ public:
     QPainterPath shape() const Q_DECL_OVERRIDE;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) Q_DECL_OVERRIDE;
     bool selected;
+    GraphNode *parent;
 
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value) Q_DECL_OVERRIDE;
@@ -84,6 +86,7 @@ protected:
 private:
     QList<GraphEdge *> edgeList;
     QPointF velocity;
+    bool fixed;
     GraphTab *graph;
 };
 

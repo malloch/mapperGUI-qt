@@ -6,7 +6,6 @@
 #include "linkview.h"
 #include "connectionprops.h"
 
-#include <QTabWidget>
 #include <QSplitter>
 #include <QGroupBox>
 #include <QVBoxLayout>
@@ -16,19 +15,19 @@ class ListTab : public Tab
 //    Q_OBJECT
 
 public:
-    ListTab(QTabWidget *parent, mapperGUIData data);
+    ListTab(QTabWidget *parent, mapperGUIData _data);
     ~ListTab();
 
     void update();
     void deviceEvent();
-    void linkEvent();
+    void signalEvent();
+    void connectionEvent();
 
 private:
     ConnectionProps *props;
     SignalList *sources;
     SignalList *destinations;
     LinkView *links;
-    mapperGUIData data;
 };
 
 #endif // LISTTAB_H

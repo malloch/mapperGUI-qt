@@ -12,14 +12,13 @@ TARGET = mapperGUI-qt
 TEMPLATE = app
 
 CONFIG += c++11
-#QMAKE_CXXFLAGS += -stdlib=libc++ -std=c++11
-#LIBS += -stdlib=libc++
+QMAKE_CXXFLAGS += -stdlib=libc++ -std=c++11
+LIBS += -stdlib=libc++
 
-#DEFINES += __GXX_EXPERIMENTAL_CXX0X__
+DEFINES += __GXX_EXPERIMENTAL_CXX0X__
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    logic.cpp \
     graphnode.cpp \
     graphedge.cpp \
     graphtab.cpp \
@@ -28,10 +27,13 @@ SOURCES += main.cpp\
     linkview.cpp \
     connectionprops.cpp \
     signallist.cpp \
-    connectionprops2.cpp
+    livesignalview.cpp \
+    patchingtab.cpp \
+    devicelist.cpp \
+    modeeditor.cpp \
+    rangeeditor.cpp
 
 HEADERS  += mainwindow.h \
-    logic.h \
     graphnode.h \
     graphedge.h \
     graphtab.h \
@@ -40,13 +42,20 @@ HEADERS  += mainwindow.h \
     linkview.h \
     connectionprops.h \
     signallist.h \
-    connectionprops2.h
+    livesignalview.h \
+    patchingtab.h \
+    devicelist.h \
+    modeeditor.h \
+    rangeeditor.h \
+    mapperstuff.h
 
 FORMS    += mainwindow.ui \
     linkview.ui \
     connectionprops.ui \
     signallist.ui \
-    connectionprops2.ui
+    livesignalview.ui \
+    modeeditor.ui \
+    rangeeditor.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../../usr/local/lib/release/ -lmapper-0
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../../usr/local/lib/debug/ -lmapper-0

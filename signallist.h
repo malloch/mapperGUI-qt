@@ -1,7 +1,6 @@
 #ifndef SIGNALLIST_H
 #define SIGNALLIST_H
 
-#include "logic.h"
 #include <QWidget>
 
 namespace Ui {
@@ -17,8 +16,9 @@ public:
     ~SignalList();
 
     void clear();
-    int addDevice(int index, mapper_db_device dev);
-    void addSignal(int parentindex, mapper_db_signal sig);
+    int addDevice(int index, const QString & name);
+    void addSignal(int parentindex, const QString &name, QChar type, qreal length);
+    float signalOffset(const QString & name);
 
 private:
     Ui::SignalList *ui;

@@ -1,5 +1,6 @@
 #include "linkview.h"
 #include "ui_linkview.h"
+#include "iostream"
 
 LinkView::LinkView(QWidget *parent) :
     QWidget(parent),
@@ -11,7 +12,9 @@ LinkView::LinkView(QWidget *parent) :
     ui->links->setDragMode(QGraphicsView::NoDrag);
 
 //    ui->links->setSceneRect(ui->links->viewport()->rect());
-    ui->links->setSceneRect(0, 0, ui->links->width(), ui->links->height());
+    QRectF viewRect = this->rect();
+    std::cout << "settingscenerect" << ui->links->width() << ","<< viewRect.height() << std::endl;
+    ui->links->setSceneRect(0, +20, ui->links->width(), viewRect.height());
 }
 
 LinkView::~LinkView()
@@ -26,13 +29,13 @@ void LinkView::clear()
 
 void LinkView::addLink(int yL, int yR, int direction)
 {
-    printf("LINKVIEW: adding link\n");
-    yL = 100;
-    yR = 200;
     QPainterPath *path = new QPainterPath();
 //    float xL = ui->links->viewport()->rect().left();
 //    float xR = ui->links->viewport()->rect().right();
     float width = ui->links->width();
+    float height = ui->links->height();
+    yL -= height*0.5;
+    yR -= height*0.5;
     path->moveTo(width*-0.5, yL);
     path->cubicTo(width*0.5, yL, width*0.5, yR, width*1.5, yR);
 

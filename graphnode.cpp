@@ -51,15 +51,16 @@
 
 #define MAX_DISPLACEMENT_SQUARED 100
 
-GraphNode::GraphNode(GraphTab *graphWidget, const char *_name)
+GraphNode::GraphNode(GraphTab *graphWidget, std::string _name, GraphNode *_parent)
     : graph(graphWidget)
 {
     setFlags(ItemIsSelectable | ItemIsMovable | ItemSendsGeometryChanges);
     setAcceptedMouseButtons(Qt::LeftButton);
     setCacheMode(DeviceCoordinateCache);
     setZValue(-1);
-    name = strdup(_name);
-    label = new QGraphicsTextItem(name, this);
+    name = _name;
+    parent = _parent;
+    label = new QGraphicsTextItem(name.c_str(), this);
     label->setPos(20, -30);
     int quadrant = rand() % 3;
     QPoint position;
@@ -77,20 +78,18 @@ GraphNode::GraphNode(GraphTab *graphWidget, const char *_name)
     setPos(position);
     velocity = QPoint(0, 0);
     selected = false;
+    fixed = false;
 }
 
 GraphNode::~GraphNode()
 {
     // need to remove connected edges
-    foreach (GraphEdge *edge, edgeList) {
-        if (edge->sourceNode() == this)
-            edge->destNode()->removeEdge(edge);
-        else
-            edge->sourceNode()->removeEdge(edge);
-    }
-
-    if (name)
-        free((void*)name);
+//    foreach (GraphEdge *edge, edgeList) {
+//        if (edge->sourceNode() == this)
+//            edge->destNode()->removeEdge(edge);
+//        else
+//            edge->sourceNode()->removeEdge(edge);
+//    }
 }
 
 void GraphNode::addEdge(GraphEdge *edge)
@@ -165,16 +164,16 @@ void GraphNode::calculateForces()
     }
 
     // Attraction from centre or left window margin
-    QPointF vec = mapToScene(pos());
-    if (vec.x()-scene()->sceneRect().left() < 50) {
+    if (fixed == true) {
 //        fx -= (vec.x() - scene()->sceneRect().left() + 100) * 0.01;
         // TODO: disallow drifting into staging area
-        fx = 0;
+        fx = fy = 0;
     }
-    else
+    else {
+        QPointF vec = mapToScene(pos());
         fx -= (vec.x() - scene()->width() * 0.5) * 0.01;
-
-    fy -= (vec.y() - scene()->height() * 0.5) * 0.01;
+        fy -= (vec.y() - scene()->height() * 0.5) * 0.01;
+    }
 
     double dx = fx * delta_t;
     double dy = fy * delta_t;
@@ -226,8 +225,7 @@ void GraphNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         painter->setPen(QPen(Qt::red, 2));
     else
         painter->setPen(QPen(Qt::black, 2));
-    float dist = mapToScene(pos()).x() - scene()->sceneRect().left();
-    if (dist < 100)
+    if (fixed)
         painter->setBrush(Qt::lightGray);
     painter->drawEllipse(-25, -25, 50, 50);
 //    painter->drawText(QRect(pos().x), QString("foo"));
@@ -265,6 +263,10 @@ void GraphNode::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void GraphNode::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+    if (pos().x()-scene()->sceneRect().left() < 50)
+        fixed = true;
+    else
+        fixed = false;
     update();
     QGraphicsItem::mouseReleaseEvent(event);
 }

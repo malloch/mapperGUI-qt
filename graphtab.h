@@ -1,13 +1,10 @@
 #ifndef GRAPHTAB_H
 #define GRAPHTAB_H
 
-#include <QTabWidget>
-#include <QGraphicsView>
-
 #include "tab.h"
 #include "graphnode.h"
 #include "graphedge.h"
-
+#include <QGraphicsView>
 
 class GraphTab : public Tab
 {
@@ -19,7 +16,8 @@ public:
 
     void update();
     void deviceEvent();
-    void linkEvent();
+    void signalEvent();
+    void connectionEvent();
     void itemMoved();
     void unselectNodes();
     void unselectEdges();
@@ -42,8 +40,8 @@ protected:
 
 private:
     QGraphicsView *view;
-    mapperGUIData data;
     bool needsUpdate;
+//    mapperGUIData data;
     QGraphicsItem* itemAt(const QPoint &pos);
 };
 
