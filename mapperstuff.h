@@ -3,23 +3,28 @@
 
 #include <mapper/mapper_cpp.h>
 
-typedef struct _mapperGUIData
+// function prototypes
+void deviceHandler(mapper_db_device dev, mapper_db_action_t a, void *user);
+void signalHandler(mapper_db_signal sig, mapper_db_action_t a, void *user);
+void connectionHandler(mapper_db_connection con, mapper_db_action_t a, void *user);
+
+class MapperStuff
 {
-    mapper::Admin *admin;
-    mapper::Monitor *monitor;
-    mapper::Db db;
-    mapper::Device *device;
-    mapper::Timetag timetag;
-//    mapper_admin admin;
-//    mapper_monitor monitor;
-//    mapper_db db;
-//    mapper_device device;
-//    mapper_timetag_t timetag;
+public:
+    explicit MapperStuff();
+    ~MapperStuff();
+
+    mapper::Monitor monitor;
+    const mapper::Db db;
+    mapper::Device device;
+
+    int poll();
+
+//protected:
     int deviceFlags;
-    int linkFlags;
     int signalFlags;
     int connectionFlags;
-} t_mapperGUIData, *mapperGUIData;
+};
 
 #endif // MAPPERSTUFF
 

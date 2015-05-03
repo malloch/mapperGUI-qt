@@ -100,7 +100,6 @@
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionSearch"/>
     <addaction name="actionDocumentation"/>
     <addaction name="separator"/>
     <addaction name="actionLibmapper_org"/>

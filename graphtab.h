@@ -2,16 +2,18 @@
 #define GRAPHTAB_H
 
 #include "tab.h"
+#include "mapperstuff.h"
 #include "graphnode.h"
 #include "graphedge.h"
 #include <QGraphicsView>
+//#include <QTabWidget>
 
 class GraphTab : public Tab
 {
     Q_OBJECT
 
 public:
-    GraphTab(QTabWidget *parent, mapperGUIData _data);
+    GraphTab(QTabWidget *parent, MapperStuff *data);
     ~GraphTab();
 
     void update();
@@ -41,7 +43,7 @@ protected:
 private:
     QGraphicsView *view;
     bool needsUpdate;
-//    mapperGUIData data;
+    MapperStuff *data;
     QGraphicsItem* itemAt(const QPoint &pos);
 };
 

@@ -46,10 +46,16 @@
 class GraphNode;
 class GraphTab;
 
+enum edge_type {
+    EDGE_TYPE_CONNECTION,
+    EDGE_TYPE_SIGNAL
+};
+
 class GraphEdge : public QGraphicsItem
 {
 public:
-    GraphEdge(GraphTab *graphWidget, GraphNode *sourceNode, GraphNode *destNode);
+    GraphEdge(GraphTab *graphWidget, GraphNode *sourceNode,
+              GraphNode *destNode, edge_type kind);
     ~GraphEdge();
 
     GraphNode *sourceNode() const;
@@ -61,6 +67,7 @@ public:
     enum { Type = UserType + 2 };
     int type() const Q_DECL_OVERRIDE { return Type; }
     bool selected;
+    edge_type kind;
 
 protected:
     QRectF boundingRect() const Q_DECL_OVERRIDE;

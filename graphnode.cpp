@@ -79,6 +79,7 @@ GraphNode::GraphNode(GraphTab *graphWidget, std::string _name, GraphNode *_paren
     velocity = QPoint(0, 0);
     selected = false;
     fixed = false;
+    radius = parent ? 15 : 25;
 }
 
 GraphNode::~GraphNode()
@@ -146,8 +147,9 @@ void GraphNode::calculateForces()
         }
     }
 
-    // Attaction forces from edges
+    // Attraction forces from edges
     foreach (GraphEdge *edge, edgeList) {
+        qreal L2 = edge->kind == EDGE_TYPE_CONNECTION ? L : L * 0.5;
         QPointF vec;
         if (edge->sourceNode() == this)
             vec = mapToItem(edge->destNode(), 0, 0);
@@ -157,7 +159,7 @@ void GraphNode::calculateForces()
         qreal dy = vec.y();
         if (dx != 0 || dy != 0) {
             double distance = sqrt(dx * dx + dy * dy);
-            double force = Ks * (distance - L);
+            double force = Ks * (distance - L2);
             fx -= force * dx / distance;
             fy -= force * dy / distance;
         }
@@ -215,7 +217,7 @@ QRectF GraphNode::boundingRect() const
 QPainterPath GraphNode::shape() const
 {
     QPainterPath path;
-    path.addEllipse(-25, -25, 50, 50);
+    path.addEllipse(QPointF(0, 0), radius, radius);
     return path;
 }
 
@@ -227,7 +229,7 @@ void GraphNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         painter->setPen(QPen(Qt::black, 2));
     if (fixed)
         painter->setBrush(Qt::lightGray);
-    painter->drawEllipse(-25, -25, 50, 50);
+    painter->drawEllipse(QPointF(0, 0), radius, radius);
 //    painter->drawText(QRect(pos().x), QString("foo"));
 }
 

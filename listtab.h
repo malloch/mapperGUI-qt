@@ -1,21 +1,21 @@
 #ifndef LISTTAB_H
 #define LISTTAB_H
 
+//#include <QTabWidget>
+//#include <QGraphicsView>
+#include "mapperstuff.h"
 #include "tab.h"
-#include "signallist.h"
-#include "linkview.h"
-#include "connectionprops.h"
 
-#include <QSplitter>
-#include <QGroupBox>
-#include <QVBoxLayout>
+namespace Ui {
+class ListTab;
+}
 
 class ListTab : public Tab
 {
-//    Q_OBJECT
+    Q_OBJECT
 
 public:
-    ListTab(QTabWidget *parent, mapperGUIData _data);
+    explicit ListTab(QTabWidget *parent = 0, MapperStuff *data = 0);
     ~ListTab();
 
     void update();
@@ -24,10 +24,8 @@ public:
     void connectionEvent();
 
 private:
-    ConnectionProps *props;
-    SignalList *sources;
-    SignalList *destinations;
-    LinkView *links;
+    Ui::ListTab *ui;
+    MapperStuff *data;
 };
 
 #endif // LISTTAB_H

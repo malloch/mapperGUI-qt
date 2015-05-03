@@ -4,20 +4,26 @@
 #include <mapperstuff.h>
 #include <QTabWidget>
 
-class Tab : public QTabWidget
+namespace Ui {
+class Tab;
+}
+
+class Tab : public QWidget
 {
 public:
-    Tab(QTabWidget *_parent, mapperGUIData _data);
+    explicit Tab(QTabWidget *_parent, MapperStuff *data);
     ~Tab();
 
     virtual void update() = 0;
     virtual void deviceEvent() = 0;
     virtual void signalEvent() = 0;
-    virtual void linkEvent() = 0;
     virtual void connectionEvent() = 0;
 
 protected:
-    mapperGUIData data;
+    MapperStuff *data;
+
+private:
+    Ui::Tab *ui;
 };
 
 #endif // TAB_H

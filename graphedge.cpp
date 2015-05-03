@@ -48,13 +48,15 @@
 #include <QGraphicsSceneMouseEvent>
 
 static const double Pi = 3.14159265358979323846264338327950288419717;
-static double TwoPi = 2.0 * Pi;
+static const double TwoPi = 2.0 * Pi;
 
-GraphEdge::GraphEdge(GraphTab *graphWidget, GraphNode *sourceNode, GraphNode *destNode)
-    : graph(graphWidget), arrowSize(10)
+GraphEdge::GraphEdge(GraphTab *graphWidget, GraphNode *sourceNode,
+                     GraphNode *destNode, edge_type _kind)
+    : graph(graphWidget), arrowSize(10), kind(_kind)
 {
     setFlags(ItemIsSelectable);
-    setAcceptedMouseButtons(Qt::LeftButton);
+    if (kind == EDGE_TYPE_CONNECTION)
+        setAcceptedMouseButtons(Qt::LeftButton);
     source = sourceNode;
     dest = destNode;
     source->addEdge(this);
@@ -91,9 +93,10 @@ void GraphEdge::adjust()
     prepareGeometryChange();
 
     if (length > qreal(20.)) {
-        QPointF edgeOffset((line.dx() * 25) / length, (line.dy() * 25) / length);
-        sourcePoint = line.p1() + edgeOffset;
-        destPoint = line.p2() - edgeOffset;
+        sourcePoint = line.p1() + QPointF(line.dx() * source->radius / length,
+                                          line.dy() * source->radius / length);
+        destPoint = line.p2() - QPointF(line.dx() * dest->radius / length,
+                                        line.dy() * dest->radius / length);
     } else {
         sourcePoint = destPoint = line.p1();
     }
@@ -129,15 +132,14 @@ void GraphEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
         painter->setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     painter->drawLine(line);
 
+    if (kind != EDGE_TYPE_CONNECTION)
+        return;
+
     // Draw the arrows
     double angle = ::acos(line.dx() / line.length());
     if (line.dy() >= 0)
         angle = TwoPi - angle;
 
-    QPointF sourceArrowP1 = sourcePoint + QPointF(sin(angle + Pi / 3) * arrowSize,
-                                                  cos(angle + Pi / 3) * arrowSize);
-    QPointF sourceArrowP2 = sourcePoint + QPointF(sin(angle + Pi - Pi / 3) * arrowSize,
-                                                  cos(angle + Pi - Pi / 3) * arrowSize);
     QPointF destArrowP1 = destPoint + QPointF(sin(angle - Pi / 3) * arrowSize,
                                               cos(angle - Pi / 3) * arrowSize);
     QPointF destArrowP2 = destPoint + QPointF(sin(angle - Pi + Pi / 3) * arrowSize,
@@ -147,7 +149,6 @@ void GraphEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
         painter->setBrush(Qt::red);
     else
         painter->setBrush(Qt::black);
-    painter->drawPolygon(QPolygonF() << line.p1() << sourceArrowP1 << sourceArrowP2);
     painter->drawPolygon(QPolygonF() << line.p2() << destArrowP1 << destArrowP2);
 }
 

@@ -1,6 +1,6 @@
 #include "tab.h"
 
-Tab::Tab(QTabWidget *_parent, mapperGUIData _data)
+Tab::Tab(QTabWidget *_parent, MapperStuff *_data)
 {
     data = _data;
 }

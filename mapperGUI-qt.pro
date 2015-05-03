@@ -23,7 +23,6 @@ SOURCES += main.cpp\
     graphedge.cpp \
     graphtab.cpp \
     listtab.cpp \
-    tab.cpp \
     linkview.cpp \
     connectionprops.cpp \
     signallist.cpp \
@@ -31,14 +30,17 @@ SOURCES += main.cpp\
     patchingtab.cpp \
     devicelist.cpp \
     modeeditor.cpp \
-    rangeeditor.cpp
+    rangeeditor.cpp \
+    mapperstuff.cpp \
+    signalsearchbar.cpp \
+    listview.cpp \
+    tab.cpp
 
 HEADERS  += mainwindow.h \
     graphnode.h \
     graphedge.h \
     graphtab.h \
     listtab.h \
-    tab.h \
     linkview.h \
     connectionprops.h \
     signallist.h \
@@ -47,7 +49,10 @@ HEADERS  += mainwindow.h \
     devicelist.h \
     modeeditor.h \
     rangeeditor.h \
-    mapperstuff.h
+    mapperstuff.h \
+    signalsearchbar.h \
+    listview.h \
+    tab.h
 
 FORMS    += mainwindow.ui \
     linkview.ui \
@@ -55,7 +60,11 @@ FORMS    += mainwindow.ui \
     signallist.ui \
     livesignalview.ui \
     modeeditor.ui \
-    rangeeditor.ui
+    rangeeditor.ui \
+    signalsearchbar.ui \
+    patchingtab.ui \
+    listtab.ui \
+    listview.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../../usr/local/lib/release/ -lmapper-0
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../../usr/local/lib/debug/ -lmapper-0
