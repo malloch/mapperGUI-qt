@@ -14,12 +14,14 @@ MainWindow::MainWindow(QWidget *parent) :
     data = new MapperStuff;
 
     // try adding a new ListTab
-    listTab = new ListTab(ui->tabs);//, data);
+    listTab = new ListTab(ui->tabs, data);
+    tabs << listTab;
     ui->tabs->addTab(listTab, "List");
 
 //    // try adding a new GraphTab
-//    overviewTab = new GraphTab(ui->tabs, data);
-//    tabs << overviewTab;
+    overviewTab = new GraphTab(ui->tabs, data);
+    tabs << overviewTab;
+    ui->tabs->addTab(overviewTab, "Overview");
     ui->tabs->setCurrentIndex(0);
 
     QTimer *timer = new QTimer(this);

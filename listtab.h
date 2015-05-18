@@ -25,7 +25,6 @@ public:
 
 private:
     Ui::ListTab *ui;
-    MapperStuff *data;
 };
 
 #endif // LISTTAB_H

@@ -43,7 +43,6 @@ protected:
 private:
     QGraphicsView *view;
     bool needsUpdate;
-    MapperStuff *data;
     QGraphicsItem* itemAt(const QPoint &pos);
 };
 

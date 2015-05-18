@@ -2,6 +2,7 @@
 #define SIGNALLIST_H
 
 #include <QWidget>
+#include "mapperstuff.h"
 
 namespace Ui {
 class SignalList;
@@ -23,6 +24,7 @@ public:
 private:
     Ui::SignalList *ui;
     int is_src;
+    MapperStuff *data;
 };
 
 #endif // SignalList_H
