@@ -1,8 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "tab.h"
-
 #include "graphtab.h"
 #include "listtab.h"
 #include <QMainWindow>
@@ -32,8 +30,8 @@ private:
     Ui::MainWindow *ui;
     MapperStuff *data;
     QList<Tab *> tabs;
-    GraphTab *overviewTab;
-    ListTab *listTab;
+//    GraphTab *overviewTab;
+//    ListTab *listTab;
     int numTabs;
     int currentTab;
 };

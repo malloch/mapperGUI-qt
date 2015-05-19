@@ -11,17 +11,17 @@ MainWindow::MainWindow(QWidget *parent) :
 //    ui->tabs->layout()->setContentsMargins(0, 0, 0, 0);
 //    setCentralWidget(ui->tabs);
 
-    data = new MapperStuff;
+    data = new MapperStuff();
 
     // try adding a new ListTab
-    listTab = new ListTab(ui->tabs, data);
+    ListTab *listTab = new ListTab(ui->tabs, data);
     tabs << listTab;
     ui->tabs->addTab(listTab, "List");
 
 //    // try adding a new GraphTab
-    overviewTab = new GraphTab(ui->tabs, data);
-    tabs << overviewTab;
-    ui->tabs->addTab(overviewTab, "Overview");
+//    overviewTab = new GraphTab(ui->tabs, data);
+//    tabs << overviewTab;
+//    ui->tabs->addTab(overviewTab, "Overview");
     ui->tabs->setCurrentIndex(0);
 
     QTimer *timer = new QTimer(this);
@@ -40,24 +40,24 @@ MainWindow::~MainWindow()
 void MainWindow::poll()
 {
     int count = data->poll();
-    if (count) {
-        // drawing updates depend on current mode...
-        if (data->deviceFlags) {
-            foreach (Tab *tab, tabs)
-                tab->deviceEvent();
-            data->deviceFlags = 0;
-        }
-        if (data->signalFlags) {
-            foreach(Tab *tab, tabs)
-                tab->signalEvent();
-            data->signalFlags = 0;
-        }
-        if (data->connectionFlags) {
-            foreach(Tab *tab, tabs)
-                tab->connectionEvent();
-            data->connectionFlags = 0;
-        }
-    }
+//    if (count) {
+//        // drawing updates depend on current mode...
+//        if (data->deviceFlags) {
+//            foreach (Tab *tab, tabs)
+//                tab->deviceEvent();
+//            data->deviceFlags = 0;
+//        }
+//        if (data->signalFlags) {
+//            foreach(Tab *tab, tabs)
+//                tab->signalEvent();
+//            data->signalFlags = 0;
+//        }
+//        if (data->connectionFlags) {
+//            foreach(Tab *tab, tabs)
+//                tab->connectionEvent();
+//            data->connectionFlags = 0;
+//        }
+//    }
 
     // TODO: don't update unless tab is selected
     foreach (Tab *tab, tabs)

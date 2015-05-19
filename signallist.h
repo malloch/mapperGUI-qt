@@ -18,7 +18,10 @@ public:
 
     void clear();
     int addDevice(int index, const QString & name);
-    void addSignal(int parentindex, const QString &name, QChar type, qreal length);
+    void removeDevice(const QString &name);
+    void addSignal(const QString &devname, const QString &signame,
+                   QChar type, qreal length);
+    void removeSignal(const QString &devname, const QString &signame);
     float signalOffset(const QString & name);
 
 private:

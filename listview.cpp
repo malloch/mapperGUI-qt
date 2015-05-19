@@ -23,13 +23,29 @@ void ListView::clear()
 
 void ListView::addDevice(int index, const QString & name, int direction)
 {
-    SignalList *list = direction == DI_OUTGOING ? ui->source : ui->destination;
-    list->addDevice(index, name);
+    if (direction & DI_OUTGOING)
+        ui->source->addDevice(index, name);
+    if (direction & DI_INCOMING)
+        ui->destination->addDevice(index, name);
 }
 
-void ListView::addSignal(int parentindex, const QString &name,
+void ListView::removeDevice(const QString & name)
+{
+    ui->source->removeDevice(name);
+    ui->destination->removeDevice(name);
+}
+
+void ListView::addSignal(const QString &devname, const QString &signame,
                          QChar type, qreal length, int direction)
 {
-    SignalList *list = direction == DI_OUTGOING ? ui->source : ui->destination;
-    list->addSignal(parentindex, name, type, length);
+    if (direction & DI_OUTGOING)
+        ui->source->addSignal(devname, signame, type, length);
+    if (direction & DI_INCOMING)
+        ui->destination->addSignal(devname, signame, type, length);
+}
+
+void ListView::removeSignal(const QString &devname, const QString &signame)
+{
+    ui->source->removeSignal(devname, signame);
+    ui->destination->removeSignal(devname, signame);
 }

@@ -17,8 +17,10 @@ public:
 
     void clear();
     void addDevice(int index, const QString & name, int direction);
-    void addSignal(int parentindex, const QString &name,
+    void removeDevice(const QString & name);
+    void addSignal(const QString &devname, const QString &signame,
                    QChar type, qreal length, int direction);
+    void removeSignal(const QString &devname, const QString &signame);
 
 private:
     Ui::ListView *ui;

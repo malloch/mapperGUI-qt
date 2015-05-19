@@ -8,6 +8,9 @@ ListTab::ListTab(QTabWidget *parent, MapperStuff *_data) :
     ui(new Ui::ListTab)
 {
     ui->setupUi(this);
+    data->addDeviceCallback(this);
+    data->addSignalCallback(this);
+    data->addConnectionCallback(this);
 }
 
 ListTab::~ListTab()
@@ -15,42 +18,41 @@ ListTab::~ListTab()
     ;
 }
 
-void ListTab::deviceEvent()
+void ListTab::deviceEvent(mapper_db_device dev, mapper_db_action_t action)
 {
-    printf("DEVICE EVENT (list)\n");
-    ListView *view = ui->listview;
-    printf("data = %p\n", data);
-    printf("data->db = %p\n", &data->db);
-    printf("data->monitor = %p\n", &data->monitor);
-//    printf("data->monitor.db() = %p\n", &data->monitor.db());
-    for (auto const &device : data->monitor.db().devices()) {
-        if (device.num_outputs() > 0) {
-            printf("should be adding source device %s\n", device.name().c_str());
-            view->addDevice(0, QString::fromStdString(device.name()), DI_OUTGOING);
-//            mapper::Db::Signal::Iterator sig = data->monitor.db().outputs(device.name()).begin();
-//            for (auto const &signal : data->monitor.db().outputs(device.name())) {
-//                view->addSignal(0, QString::fromStdString(signal.name()),
-//                                QChar(signal.type()), signal.length(), DI_OUTGOING);
-//            }
-        }
-        if (device.num_inputs() > 0) {
-            printf("should be adding destination device %s\n", device.name().c_str());
-            view->addDevice(0, QString::fromStdString(device.name()), DI_INCOMING);
-//            mapper::Db::Signal::Iterator sig = data->monitor.db().inputs(device.name()).begin();
-//            for (auto const &signal : data->monitor.db().inputs(device.name())) {
-//                view->addSignal(0, QString::fromStdString(signal.name()),
-//                                QChar(signal.type()), signal.length(), DI_INCOMING);
-//            }
-        }
+    int direction = ((  dev->num_inputs ? DI_INCOMING : 0)
+                     | (dev->num_outputs ? DI_OUTGOING : 0));
+
+    switch (action) {
+    case MDB_NEW:
+        ui->listview->addDevice(0, QString::fromStdString(dev->name), direction);
+        break;
+    case MDB_REMOVE:
+        ui->listview->removeDevice(QString::fromStdString(dev->name));
+        break;
+    default:
+        break;
     }
 }
 
-void ListTab::signalEvent()
+void ListTab::signalEvent(mapper_db_signal sig, mapper_db_action_t action)
 {
-    ;
+    switch (action) {
+    case MDB_NEW:
+        ui->listview->addSignal(QString::fromStdString(sig->device->name),
+                                QString::fromStdString(sig->name),
+                                QChar(sig->type), sig->length, sig->direction);
+        break;
+    case MDB_REMOVE:
+        ui->listview->removeSignal(QString::fromStdString(sig->device->name),
+                                   QString::fromStdString(sig->name));
+        break;
+    default:
+        break;
+    }
 }
 
-void ListTab::connectionEvent()
+void ListTab::connectionEvent(mapper_db_connection con, mapper_db_action_t action)
 {
     ;
 }

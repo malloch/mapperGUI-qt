@@ -2,7 +2,7 @@
 #define GRAPHTAB_H
 
 #include "tab.h"
-#include "mapperstuff.h"
+//#include "mapperstuff.h"
 #include "graphnode.h"
 #include "graphedge.h"
 #include <QGraphicsView>

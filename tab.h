@@ -1,13 +1,15 @@
 #ifndef TAB_H
 #define TAB_H
 
-#include <mapperstuff.h>
+//#include <mapperstuff.h>
+#include <mapper/mapper_cpp.h>
 #include <QTabWidget>
 
 namespace Ui {
 class Tab;
 }
 
+class MapperStuff;
 class Tab : public QWidget
 {
 public:
@@ -15,9 +17,9 @@ public:
     ~Tab();
 
     virtual void update() = 0;
-    virtual void deviceEvent() = 0;
-    virtual void signalEvent() = 0;
-    virtual void connectionEvent() = 0;
+    virtual void deviceEvent(mapper_db_device dev, mapper_db_action_t action) = 0;
+    virtual void signalEvent(mapper_db_signal sig, mapper_db_action_t action) = 0;
+    virtual void connectionEvent(mapper_db_connection con, mapper_db_action_t action) = 0;
 
 protected:
     MapperStuff *data;

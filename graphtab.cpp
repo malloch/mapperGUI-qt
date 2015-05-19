@@ -78,19 +78,19 @@ GraphTab::GraphTab(QTabWidget *parent, MapperStuff *_data) :
 
     numObjects = 0;
 
-    // add current devices
-    for (auto const &device : data->monitor.db().devices()) {
-        GraphNode *gdev = new GraphNode(this, device.name(), 0);
-        scene->addItem(gdev);
-        mapper::Db::Signal::Iterator iter = data->monitor.db().inputs(device.name()).begin();
-        for (; iter != data->monitor.db().inputs(device.name()).end(); iter++) {
-            scene->addItem(new GraphNode(this, device.name(), gdev));
-        }
-        iter = data->monitor.db().outputs(device.name()).begin();
-        for (; iter != data->monitor.db().outputs(device.name()).end(); iter++) {
-            scene->addItem(new GraphNode(this, device.name(), gdev));
-        }
-    }
+//    // add current devices
+//    for (auto const &device : data->monitor.db().devices()) {
+//        GraphNode *gdev = new GraphNode(this, device.name(), 0);
+//        scene->addItem(gdev);
+//        mapper::Db::Signal::Iterator iter = data->monitor.db().inputs(device.name()).begin();
+//        for (; iter != data->monitor.db().inputs(device.name()).end(); iter++) {
+//            scene->addItem(new GraphNode(this, device.name(), gdev));
+//        }
+//        iter = data->monitor.db().outputs(device.name()).begin();
+//        for (; iter != data->monitor.db().outputs(device.name()).end(); iter++) {
+//            scene->addItem(new GraphNode(this, device.name(), gdev));
+//        }
+//    }
 
     needsUpdate = true;
 }
@@ -103,124 +103,29 @@ GraphTab::~GraphTab()
 
 void GraphTab::deviceEvent()
 {
-    printf("DEVICE EVENT (graph)\n");
-    if (data->deviceFlags & (1 << MDB_NEW)) {
-        // need to add new nodes
-        for (auto const &device : data->monitor.db().devices()) {
-            // check if we already know this node
-            bool found = false;
-            foreach (QGraphicsItem *item, scene->items()) {
-                if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
-                    if (device.name().compare(node->name) == 0) {
-                        found = true;
-                        break;
-                    }
-                }
-            }
-            if (!found)
-                scene->addItem(new GraphNode(this, device.name(), 0));
-        }
-    }
-    if (data->deviceFlags & (1 << MDB_REMOVE)) {
-        foreach (QGraphicsItem *item, scene->items()) {
-            if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
-                // check if device exists in db
-                mapper::Db::Device dev = data->monitor.db().device(node->name);
-                if (!dev) {
-                    scene->removeItem(node);
-                    delete node;
-                }
-            }
-        }
-    }
-}
-
-void GraphTab::signalEvent()
-{
-    printf("SIGNAL EVENT (graph)\n");
-    if (data->signalFlags & (1 << MDB_NEW)) {
-        // need to add new nodes
-        for (auto const &signal : data->monitor.db().inputs()) {
-            // check if we already know this node
-            bool found = false;
-            // find parent device first
-            GraphNode *device;
-            foreach (QGraphicsItem *item, scene->items()) {
-                if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
-                    if (node->parent)
-                        continue;
-                    if (signal.device().name().compare(node->name) == 0) {
-                        found = true;
-                        device = node;
-                        break;
-                    }
-                }
-            }
-            if (!found) {
-                device = new GraphNode(this, signal.device().name(), 0);
-                scene->addItem(device);
-            }
-
-            found = false;
-            foreach (QGraphicsItem *item, scene->items()) {
-                if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
-                    if (node->parent)
-                        continue;
-                    if (signal.name().compare(node->name) == 0) {
-                        found = true;
-                        break;
-                    }
-                }
-            }
-            if (!found) {
-                GraphNode *signode = new GraphNode(this, signal.name(), device);
-                scene->addItem(signode);
-                scene->addItem(new GraphEdge(this, device, signode, EDGE_TYPE_SIGNAL));
-            }
-        }
-        for (auto const &signal : data->monitor.db().outputs()) {
-            // check if we already know this node
-            bool found = false;
-            // find parent device first
-            GraphNode *device;
-            foreach (QGraphicsItem *item, scene->items()) {
-                if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
-                    if (node->parent)
-                        continue;
-                    if (signal.device().name().compare(node->name) == 0) {
-                        found = true;
-                        device = node;
-                        break;
-                    }
-                }
-            }
-            if (!found) {
-                device = new GraphNode(this, signal.device().name(), 0);
-                scene->addItem(device);
-            }
-            found = false;
-            foreach (QGraphicsItem *item, scene->items()) {
-                if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
-                    if (node->parent)
-                        continue;
-                    if (signal.name().compare(node->name) == 0) {
-                        found = true;
-                        break;
-                    }
-                }
-            }
-            if (!found) {
-                GraphNode *signode = new GraphNode(this, signal.name(), device);
-                scene->addItem(signode);
-                scene->addItem(new GraphEdge(this, device, signode, EDGE_TYPE_SIGNAL));
-            }
-        }
-    }
-//    if (data->signalFlags & (1 << MDB_REMOVE)) {
+//    printf("DEVICE EVENT (graph)\n");
+//    if (data->deviceFlags & (1 << MDB_NEW)) {
+//        // need to add new nodes
+//        for (auto const &device : data->monitor.db().devices()) {
+//            // check if we already know this node
+//            bool found = false;
+//            foreach (QGraphicsItem *item, scene->items()) {
+//                if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
+//                    if (device.name().compare(node->name) == 0) {
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//            }
+//            if (!found)
+//                scene->addItem(new GraphNode(this, device.name(), 0));
+//        }
+//    }
+//    if (data->deviceFlags & (1 << MDB_REMOVE)) {
 //        foreach (QGraphicsItem *item, scene->items()) {
 //            if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
 //                // check if device exists in db
-//                mapper_db_signal sig = mapper_db_get_input_by_name(data->db, node->name);
+//                mapper::Db::Device dev = data->monitor.db().device(node->name);
 //                if (!dev) {
 //                    scene->removeItem(node);
 //                    delete node;
@@ -230,65 +135,160 @@ void GraphTab::signalEvent()
 //    }
 }
 
+void GraphTab::signalEvent()
+{
+//    printf("SIGNAL EVENT (graph)\n");
+//    if (data->signalFlags & (1 << MDB_NEW)) {
+//        // need to add new nodes
+//        for (auto const &signal : data->monitor.db().inputs()) {
+//            // check if we already know this node
+//            bool found = false;
+//            // find parent device first
+//            GraphNode *device;
+//            foreach (QGraphicsItem *item, scene->items()) {
+//                if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
+//                    if (node->parent)
+//                        continue;
+//                    if (signal.device().name().compare(node->name) == 0) {
+//                        found = true;
+//                        device = node;
+//                        break;
+//                    }
+//                }
+//            }
+//            if (!found) {
+//                device = new GraphNode(this, signal.device().name(), 0);
+//                scene->addItem(device);
+//            }
+
+//            found = false;
+//            foreach (QGraphicsItem *item, scene->items()) {
+//                if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
+//                    if (node->parent)
+//                        continue;
+//                    if (signal.name().compare(node->name) == 0) {
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//            }
+//            if (!found) {
+//                GraphNode *signode = new GraphNode(this, signal.name(), device);
+//                scene->addItem(signode);
+//                scene->addItem(new GraphEdge(this, device, signode, EDGE_TYPE_SIGNAL));
+//            }
+//        }
+//        for (auto const &signal : data->monitor.db().outputs()) {
+//            // check if we already know this node
+//            bool found = false;
+//            // find parent device first
+//            GraphNode *device;
+//            foreach (QGraphicsItem *item, scene->items()) {
+//                if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
+//                    if (node->parent)
+//                        continue;
+//                    if (signal.device().name().compare(node->name) == 0) {
+//                        found = true;
+//                        device = node;
+//                        break;
+//                    }
+//                }
+//            }
+//            if (!found) {
+//                device = new GraphNode(this, signal.device().name(), 0);
+//                scene->addItem(device);
+//            }
+//            found = false;
+//            foreach (QGraphicsItem *item, scene->items()) {
+//                if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
+//                    if (node->parent)
+//                        continue;
+//                    if (signal.name().compare(node->name) == 0) {
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//            }
+//            if (!found) {
+//                GraphNode *signode = new GraphNode(this, signal.name(), device);
+//                scene->addItem(signode);
+//                scene->addItem(new GraphEdge(this, device, signode, EDGE_TYPE_SIGNAL));
+//            }
+//        }
+//    }
+////    if (data->signalFlags & (1 << MDB_REMOVE)) {
+////        foreach (QGraphicsItem *item, scene->items()) {
+////            if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
+////                // check if device exists in db
+////                mapper_db_signal sig = mapper_db_get_input_by_name(data->db, node->name);
+////                if (!dev) {
+////                    scene->removeItem(node);
+////                    delete node;
+////                }
+////            }
+////        }
+////    }
+}
+
 void GraphTab::connectionEvent()
 {
-    if (data->connectionFlags & (1 << MDB_NEW)) {
-        // need to add new nodes
-        for (auto const &c : data->monitor.db().connections()) {
-            bool exists = false;
-            // check if connection already exists
-            foreach (QGraphicsItem *item, scene->items()) {
-                if (GraphEdge *edge = qgraphicsitem_cast<GraphEdge *>(item)) {
-                    if (c.hash() == edge->hash) {
-                        // connection already exists
-                        exists = true;
-                        break;
-                    }
-                }
-                if (exists)
-                    break;
-            }
-            if (!exists) {
-                GraphNode *src = 0, *dest = 0;
-                // find destination node
-                foreach (QGraphicsItem *item, scene->items()) {
-                    if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
-                        if (c.destination().signal().name().compare(node->name) == 0) {
-                            dest = node;
-                            break;
-                        }
-                    }
-                }
-                if (!dest)
-                    continue;
-                // find source node(s)
-                foreach (QGraphicsItem *item, scene->items()) {
-                    if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
-                        for (int i = 0; i < c.num_sources(); i++) {
-                            if (c.source(i).signal().name().compare(node->name) == 0) {
-                                scene->addItem(new GraphEdge(this, node, dest,
-                                                             EDGE_TYPE_CONNECTION));
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if (data->connectionFlags & (1 << MDB_REMOVE)) {
-        foreach (QGraphicsItem *item, scene->items()) {
-            if (GraphEdge *edge = qgraphicsitem_cast<GraphEdge *>(item)) {
-                // check if link exists in db
-                mapper::Db::Connection con = data->monitor.db().connection(edge->hash);
-                if (!con) {
-                    edge->sourceNode()->removeEdge(edge);
-                    edge->destNode()->removeEdge(edge);
-                    scene->removeItem(edge);
-                }
-            }
-        }
-    }
+//    if (data->connectionFlags & (1 << MDB_NEW)) {
+//        // need to add new nodes
+//        for (auto const &c : data->monitor.db().connections()) {
+//            bool exists = false;
+//            // check if connection already exists
+//            foreach (QGraphicsItem *item, scene->items()) {
+//                if (GraphEdge *edge = qgraphicsitem_cast<GraphEdge *>(item)) {
+//                    if (c.hash() == edge->hash) {
+//                        // connection already exists
+//                        exists = true;
+//                        break;
+//                    }
+//                }
+//                if (exists)
+//                    break;
+//            }
+//            if (!exists) {
+//                GraphNode *src = 0, *dest = 0;
+//                // find destination node
+//                foreach (QGraphicsItem *item, scene->items()) {
+//                    if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
+//                        if (c.destination().signal().name().compare(node->name) == 0) {
+//                            dest = node;
+//                            break;
+//                        }
+//                    }
+//                }
+//                if (!dest)
+//                    continue;
+//                // find source node(s)
+//                foreach (QGraphicsItem *item, scene->items()) {
+//                    if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item)) {
+//                        for (int i = 0; i < c.num_sources(); i++) {
+//                            if (c.source(i).signal().name().compare(node->name) == 0) {
+//                                scene->addItem(new GraphEdge(this, node, dest,
+//                                                             EDGE_TYPE_CONNECTION));
+//                                break;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    if (data->connectionFlags & (1 << MDB_REMOVE)) {
+//        foreach (QGraphicsItem *item, scene->items()) {
+//            if (GraphEdge *edge = qgraphicsitem_cast<GraphEdge *>(item)) {
+//                // check if link exists in db
+//                mapper::Db::Connection con = data->monitor.db().connection(edge->hash);
+//                if (!con) {
+//                    edge->sourceNode()->removeEdge(edge);
+//                    edge->destNode()->removeEdge(edge);
+//                    scene->removeItem(edge);
+//                }
+//            }
+//        }
+//    }
 }
 
 
@@ -299,50 +299,50 @@ void GraphTab::itemMoved()
 
 void GraphTab::keyPressEvent(QKeyEvent *event)
 {
-    switch (event->key()) {
-    case Qt::Key_Plus:
-        zoomIn();
-        break;
-    case Qt::Key_Minus:
-        zoomOut();
-        break;
-    case Qt::Key_L:
-    case Qt::Key_U:
-    {
-        QList<GraphNode *> nodes;
-        foreach (QGraphicsItem *item, scene->items()) {
-            if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item))
-                nodes << node;
-        }
-        foreach (GraphNode *node1, nodes) {
-            if (node1->selected) {
-                foreach (GraphNode *node2, nodes) {
-                    if (node2 != node1 && node2->selected) {
-                        if (event->key() == Qt::Key_L)
-                            data->monitor.connect(node1->name, node2->name);
-                        else
-                            data->monitor.disconnect(node1->name, node2->name);
-                    }
-                }
-            }
-        }
-    }
-        break;
-    case Qt::Key_Delete:
-    case Qt::Key_Backspace:
-    {
-        foreach (QGraphicsItem *item, scene->items()) {
-            if (GraphEdge *edge = qgraphicsitem_cast<GraphEdge *>(item)) {
-                if (edge->selected)
-                    data->monitor.disconnect(edge->sourceNode()->name,
-                                              edge->destNode()->name);
-            }
-        }
-    }
-        break;
-    default:
-        ;
-    }
+//    switch (event->key()) {
+//    case Qt::Key_Plus:
+//        zoomIn();
+//        break;
+//    case Qt::Key_Minus:
+//        zoomOut();
+//        break;
+//    case Qt::Key_L:
+//    case Qt::Key_U:
+//    {
+//        QList<GraphNode *> nodes;
+//        foreach (QGraphicsItem *item, scene->items()) {
+//            if (GraphNode *node = qgraphicsitem_cast<GraphNode *>(item))
+//                nodes << node;
+//        }
+//        foreach (GraphNode *node1, nodes) {
+//            if (node1->selected) {
+//                foreach (GraphNode *node2, nodes) {
+//                    if (node2 != node1 && node2->selected) {
+//                        if (event->key() == Qt::Key_L)
+//                            data->monitor.connect(node1->name, node2->name);
+//                        else
+//                            data->monitor.disconnect(node1->name, node2->name);
+//                    }
+//                }
+//            }
+//        }
+//    }
+//        break;
+//    case Qt::Key_Delete:
+//    case Qt::Key_Backspace:
+//    {
+//        foreach (QGraphicsItem *item, scene->items()) {
+//            if (GraphEdge *edge = qgraphicsitem_cast<GraphEdge *>(item)) {
+//                if (edge->selected)
+//                    data->monitor.disconnect(edge->sourceNode()->name,
+//                                              edge->destNode()->name);
+//            }
+//        }
+//    }
+//        break;
+//    default:
+//        ;
+//    }
 }
 
 void GraphTab::update()
