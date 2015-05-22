@@ -8,6 +8,9 @@ SignalList::SignalList(QWidget *parent, const char *_label, int _is_src) :
 {
     ui->setupUi(this);
     ui->label->setText(_label);
+    ui->tree->setColumnWidth(0, ui->widget->width()-120);
+    ui->tree->setColumnWidth(1, 50);
+    ui->tree->setColumnWidth(2, 50);
     is_src = _is_src;
 }
 
