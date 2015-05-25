@@ -109,3 +109,12 @@ void ListTab::update()
 {
     ;
 }
+
+void ListTab::resizeEvent(QResizeEvent *event)
+{
+    ui->listview->clearMaps();
+    ui->listview->resize();
+    for (auto const &map : data->db.maps()) {
+        mapEvent(map, MDB_NEW);
+    }
+}

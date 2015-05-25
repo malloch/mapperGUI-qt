@@ -18,6 +18,7 @@ public:
 
     void clear();
     void addLink(QPointF src, QPointF dst);
+    void resize();
 
 private:
     Ui::LinkView *ui;

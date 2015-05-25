@@ -7,13 +7,14 @@ LinkView::LinkView(QWidget *parent) :
     ui(new Ui::LinkView)
 {
     ui->setupUi(this);
-    scene = new QGraphicsScene(this->rect());
+    QRect rect = this->rect();
+    scene = new QGraphicsScene(rect.left(), rect.top(), rect.width()-2, rect.height()-50);
     ui->links->setScene(scene);
     ui->links->setDragMode(QGraphicsView::NoDrag);
 
 //    ui->links->setSceneRect(ui->links->viewport()->rect());
 //    QRectF viewRect = this->rect();
-    std::cout << "settingscenerect" << scene->width() << ","<< scene->height() << std::endl;
+//    std::cout << "settingscenerect" << scene->width() << ","<< scene->height() << std::endl;
 //    ui->links->setSceneRect(0, +20, ui->links->width(), viewRect.height());
 }
 
@@ -31,10 +32,7 @@ void LinkView::addLink(QPointF src, QPointF dst)
 {
     QPainterPath *path = new QPainterPath();
 
-    src -= QPointF(0, 50);
-    dst -= QPointF(0, 50);
-
-    float width = this->width();
+    float width = this->width()-2;
     float halfwidth = width * 0.5;
 
     path->moveTo(src.x() * width, src.y());
@@ -44,10 +42,11 @@ void LinkView::addLink(QPointF src, QPointF dst)
 
 //    QPen *pen = new QPen(QBrush()0)
     scene->addPath(*path, QPen(Qt::black, 2));
+
     QPointF endPoint, arrowP1, arrowP2;
     endPoint = QPointF(dst.x() * width, dst.y());
-    arrowP1 = endPoint + QPointF(dst.x() * 8.66025403784439, 5);
-    arrowP2 = endPoint + QPointF(dst.x() * 8.66025403784439, -5);
+    arrowP1 = endPoint + QPointF(dst.x() * -8.66025403784439, 5);
+    arrowP2 = endPoint + QPointF(dst.x() * -8.66025403784439, -5);
 
     scene->addPolygon(QPolygonF() << endPoint << arrowP1 << arrowP2,
                       QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap,
@@ -57,4 +56,10 @@ void LinkView::addLink(QPointF src, QPointF dst)
 
 //    painter.setPen(QColor(255, 255, 255));
 //    painter.strokePath(*path, painter.pen());
+}
+
+void LinkView::resize()
+{
+    QRect rect = this->rect();
+    ui->links->setSceneRect(rect.left(), rect.top(), rect.width()-2, rect.height()-50);
 }

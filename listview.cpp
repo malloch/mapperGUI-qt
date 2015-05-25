@@ -82,3 +82,8 @@ void ListView::addMap(const QString &srcdevname, const QString &srcsigname,
     QPointF dstpos = signalPosition(dstdevname, dstsigname);
     ui->links->addLink(srcpos, dstpos);
 }
+
+void ListView::resize()
+{
+    ui->links->resize();
+}

@@ -16,6 +16,7 @@ public:
     ~ListView();
 
     void clear();
+    void resize();
 
     void addDevice(int index, const QString & name, int direction);
     void removeDevice(const QString & name);

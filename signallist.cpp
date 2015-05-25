@@ -12,6 +12,7 @@ SignalList::SignalList(QWidget *parent, const char *_label, int _is_src) :
     ui->tree->setColumnWidth(1, 50);
     ui->tree->setColumnWidth(2, 50);
     ui->tree->setColumnHidden(3, true);
+    ui->tree->setAlternatingRowColors(true);
     is_src = _is_src;
 
     connect(ui->tree, SIGNAL(itemExpanded(QTreeWidgetItem*)),

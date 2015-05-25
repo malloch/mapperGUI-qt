@@ -21,6 +21,9 @@ public:
     void signalEvent(mapper_db_signal sig, mapper_db_action_t action);
     void mapEvent(mapper_db_map map, mapper_db_action_t action);
 
+protected:
+    void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
+
 public slots:
     void updateMaps();
 
