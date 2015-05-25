@@ -17,7 +17,7 @@ public:
     ~LinkView();
 
     void clear();
-    void addLink(int offsetL, int offsetR, int direction=0);
+    void addLink(QPointF src, QPointF dst);
 
 private:
     Ui::LinkView *ui;

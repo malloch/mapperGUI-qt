@@ -51,7 +51,8 @@
 
 #define MAX_DISPLACEMENT_SQUARED 100
 
-GraphNode::GraphNode(GraphTab *graphWidget, std::string _name, GraphNode *_parent)
+GraphNode::GraphNode(GraphTab *graphWidget, std::string _name,
+                     uint32_t _hash, GraphNode *_parent)
     : graph(graphWidget)
 {
     setFlags(ItemIsSelectable | ItemIsMovable | ItemSendsGeometryChanges);
@@ -59,6 +60,7 @@ GraphNode::GraphNode(GraphTab *graphWidget, std::string _name, GraphNode *_paren
     setCacheMode(DeviceCoordinateCache);
     setZValue(-1);
     name = _name;
+    hash = _hash;
     parent = _parent;
     label = new QGraphicsTextItem(name.c_str(), this);
     label->setPos(20, -30);
@@ -150,11 +152,13 @@ void GraphNode::calculateForces()
     // Attraction forces from edges
     foreach (GraphEdge *edge, edgeList) {
         qreal L2 = edge->kind == EDGE_TYPE_CONNECTION ? L : L * 0.5;
-        QPointF vec;
-        if (edge->sourceNode() == this)
-            vec = mapToItem(edge->destNode(), 0, 0);
+        QPointF vec = {0, 0};
+        if (edge->destNode() == this) {
+            foreach (GraphNode *s, edge->sourceNodes())
+                vec += mapToItem(s, 0, 0);
+        }
         else
-            vec = mapToItem(edge->sourceNode(), 0, 0);
+            vec = mapToItem(edge->destNode(), 0, 0);
         qreal dx = vec.x();
         qreal dy = vec.y();
         if (dx != 0 || dy != 0) {

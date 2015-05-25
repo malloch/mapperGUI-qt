@@ -50,16 +50,22 @@
 static const double Pi = 3.14159265358979323846264338327950288419717;
 static const double TwoPi = 2.0 * Pi;
 
-GraphEdge::GraphEdge(GraphTab *graphWidget, GraphNode *sourceNode,
+GraphEdge::GraphEdge(GraphTab *graphWidget, QList<GraphNode *> sourceNodes,
                      GraphNode *destNode, edge_type _kind)
     : graph(graphWidget), arrowSize(10), kind(_kind)
 {
     setFlags(ItemIsSelectable);
     if (kind == EDGE_TYPE_CONNECTION)
-        setAcceptedMouseButtons(Qt::LeftButton);
-    source = sourceNode;
+        setAcceptHoverEvents(true);
+//        setAcceptedMouseButtons(Qt::LeftButton);
+    sources = sourceNodes;
     dest = destNode;
-    source->addEdge(this);
+    foreach (GraphNode *s, sources) {
+        printf("adding source to edge\n");
+        s->addEdge(this);
+        sourcePoints.append(QPointF(0, 0));
+    }
+
     dest->addEdge(this);
     adjust();
     selected = false;
@@ -72,70 +78,79 @@ GraphEdge::~GraphEdge()
 //    destNode()->removeEdge(this);
 }
 
-GraphNode *GraphEdge::sourceNode() const
+QList<GraphNode*> GraphEdge::sourceNodes() const
 {
-    return source;
+    return sources;
 }
 
-GraphNode *GraphEdge::destNode() const
+GraphNode* GraphEdge::destNode() const
 {
     return dest;
 }
 
 void GraphEdge::adjust()
 {
-    if (!source || !dest)
+    printf("WE habe %d sourcePoints\n", sourcePoints.count());
+    if (!sources.count() || !sourcePoints.count() || !dest)
         return;
 
-    QLineF line(mapFromItem(source, 0, 0), mapFromItem(dest, 0, 0));
-    qreal length = line.length();
+    for (int i = 0; i < sources.count(); i++) {
+        printf("surce index %d\n", i);
+        GraphNode* s = sources[i];
+        QLineF line(mapFromItem(s, 0, 0), mapFromItem(dest, 0, 0));
+        qreal length = line.length();
 
-    prepareGeometryChange();
+        prepareGeometryChange();
 
-    if (length > qreal(20.)) {
-        sourcePoint = line.p1() + QPointF(line.dx() * source->radius / length,
-                                          line.dy() * source->radius / length);
-        destPoint = line.p2() - QPointF(line.dx() * dest->radius / length,
-                                        line.dy() * dest->radius / length);
-    } else {
-        sourcePoint = destPoint = line.p1();
+        if (length > qreal(20.)) {
+            const QPointF p = line.p1() + QPointF(line.dx() * s->radius / length,
+                                                  line.dy() * s->radius / length);
+            sourcePoints[i] = p;
+            destPoint = line.p2() - QPointF(line.dx() * dest->radius / length,
+                                            line.dy() * dest->radius / length);
+        } else {
+            sourcePoints[i] = destPoint = line.p1();
+        }
     }
 }
 
 QRectF GraphEdge::boundingRect() const
 {
-    if (!source || !dest)
+    if (!sources.count() || !dest)
         return QRectF();
 
     qreal penWidth = 1;
     qreal extra = (penWidth + arrowSize) / 2.0;
 
-    return QRectF(sourcePoint, QSizeF(destPoint.x() - sourcePoint.x(),
-                                      destPoint.y() - sourcePoint.y()))
+    return QRectF(sourcePoints[0], QSizeF(destPoint.x() - sourcePoints[0].x(),
+                                          destPoint.y() - sourcePoints[0].y()))
         .normalized()
         .adjusted(-extra, -extra, extra, extra);
 }
 
 void GraphEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    if (!source || !dest)
+    if (!sources.count() || !dest)
         return;
 
-    QLineF line(sourcePoint, destPoint);
-    if (qFuzzyCompare(line.length(), qreal(0.)))
-        return;
+    QLineF line(QPointF(), destPoint);
+    foreach (QPointF p, sourcePoints) {
+        line.setP1(p);
+        if (qFuzzyCompare(line.length(), qreal(0.)))
+            continue;
 
-    // Draw the line itself
-    if (selected)
-        painter->setPen(QPen(Qt::red, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    else
-        painter->setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    painter->drawLine(line);
+        // Draw the line itself
+        if (selected)
+            painter->setPen(QPen(Qt::red, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        else
+            painter->setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        painter->drawLine(line);
+    }
 
     if (kind != EDGE_TYPE_CONNECTION)
         return;
 
-    // Draw the arrows
+    // Draw the arrow
     double angle = ::acos(line.dx() / line.length());
     if (line.dy() >= 0)
         angle = TwoPi - angle;
@@ -152,7 +167,8 @@ void GraphEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
     painter->drawPolygon(QPolygonF() << line.p2() << destArrowP1 << destArrowP2);
 }
 
-void GraphEdge::mousePressEvent(QGraphicsSceneMouseEvent *event)
+//void GraphEdge::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void GraphEdge::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     if (selected)
         selected = false;
@@ -166,3 +182,4 @@ void GraphEdge::mousePressEvent(QGraphicsSceneMouseEvent *event)
     update();
 //    QGraphicsItem::mousePressEvent(event);
 }
+

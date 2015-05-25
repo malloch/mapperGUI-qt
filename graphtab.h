@@ -1,12 +1,11 @@
 #ifndef GRAPHTAB_H
 #define GRAPHTAB_H
 
+#include "mapperstuff.h"
 #include "tab.h"
-//#include "mapperstuff.h"
 #include "graphnode.h"
 #include "graphedge.h"
 #include <QGraphicsView>
-//#include <QTabWidget>
 
 class GraphTab : public Tab
 {
@@ -17,9 +16,9 @@ public:
     ~GraphTab();
 
     void update();
-    void deviceEvent();
-    void signalEvent();
-    void connectionEvent();
+    void deviceEvent(mapper_db_device dev, mapper_db_action_t action);
+    void signalEvent(mapper_db_signal sig, mapper_db_action_t action);
+    void mapEvent(mapper_db_map map, mapper_db_action_t action);
     void itemMoved();
     void unselectNodes();
     void unselectEdges();

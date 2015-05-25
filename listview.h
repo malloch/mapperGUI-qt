@@ -16,11 +16,18 @@ public:
     ~ListView();
 
     void clear();
+
     void addDevice(int index, const QString & name, int direction);
     void removeDevice(const QString & name);
+
     void addSignal(const QString &devname, const QString &signame,
                    QChar type, qreal length, int direction);
     void removeSignal(const QString &devname, const QString &signame);
+    QPointF signalPosition(const QString &devname, const QString &signame);
+
+    void clearMaps();
+    void addMap(const QString &srcdevname, const QString &srcsigname,
+                const QString &dstdevname, const QString &dstsigname);
 
 private:
     Ui::ListView *ui;

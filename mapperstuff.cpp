@@ -7,7 +7,7 @@ MapperStuff::MapperStuff() :
 {
     db.add_device_callback(deviceHandler, this);
     db.add_signal_callback(signalHandler, this);
-    db.add_connection_callback(connectionHandler, this);
+    db.add_map_callback(mapHandler, this);
 }
 
 MapperStuff::~MapperStuff()
@@ -24,9 +24,9 @@ void MapperStuff::addSignalCallback(Tab *tab)
     signalCallbacks << tab;
 }
 
-void MapperStuff::addConnectionCallback(Tab *tab)
+void MapperStuff::addMapCallback(Tab *tab)
 {
-    connectionCallbacks << tab;
+    mapCallbacks << tab;
 }
 
 int MapperStuff::poll()
@@ -54,16 +54,16 @@ void signalHandler(mapper_db_signal sig, mapper_db_action_t action, void *user)
         tab->signalEvent(sig, action);
 }
 
-void connectionHandler(mapper_db_connection con, mapper_db_action_t action, void *user)
+void mapHandler(mapper_db_map map, mapper_db_action_t action, void *user)
 {
-    printf("QtMonitor got update from connection ");
-    if (con->num_sources > 1)
+    printf("QtMonitor got update from map ");
+    if (map->num_sources > 1)
         printf("[");
-    for (int i = 0; i < con->num_sources; i++)
-        printf("%s, ", con->sources[i].signal->name);
-    printf("\b\b%s -> %s", con->num_sources > 1 ? "[" : "", con->destination.signal->name);
+    for (int i = 0; i < map->num_sources; i++)
+        printf("%s, ", map->sources[i].signal->name);
+    printf("\b\b%s -> %s", map->num_sources > 1 ? "[" : "", map->destination.signal->name);
 
     MapperStuff *data = (MapperStuff*) user;
-    foreach (Tab *tab, data->connectionCallbacks)
-        tab->connectionEvent(con, action);
+    foreach (Tab *tab, data->mapCallbacks)
+        tab->mapEvent(map, action);
 }

@@ -8,7 +8,7 @@
 // function prototypes
 void deviceHandler(mapper_db_device dev, mapper_db_action_t a, void *user);
 void signalHandler(mapper_db_signal sig, mapper_db_action_t a, void *user);
-void connectionHandler(mapper_db_connection con, mapper_db_action_t a, void *user);
+void mapHandler(mapper_db_map map, mapper_db_action_t a, void *user);
 
 class MapperStuff
 {
@@ -23,15 +23,15 @@ public:
     int poll();
     void addDeviceCallback(Tab *tab);
     void addSignalCallback(Tab *tab);
-    void addConnectionCallback(Tab *tab);
+    void addMapCallback(Tab *tab);
 
 //protected:
     QList <Tab *> deviceCallbacks;
     QList <Tab *> signalCallbacks;
-    QList <Tab *> connectionCallbacks;
+    QList <Tab *> mapCallbacks;
     int deviceFlags;
     int signalFlags;
-    int connectionFlags;
+    int mapFlags;
 };
 
 #endif // MAPPERSTUFF

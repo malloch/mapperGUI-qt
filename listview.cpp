@@ -25,8 +25,13 @@ void ListView::addDevice(int index, const QString & name, int direction)
 {
     if (direction & DI_OUTGOING)
         ui->source->addDevice(index, name);
+    else
+        ui->source->removeDevice(name);
+
     if (direction & DI_INCOMING)
         ui->destination->addDevice(index, name);
+    else
+        ui->destination->removeDevice(name);
 }
 
 void ListView::removeDevice(const QString & name)
@@ -40,12 +45,38 @@ void ListView::addSignal(const QString &devname, const QString &signame,
 {
     if (direction & DI_OUTGOING)
         ui->source->addSignal(devname, signame, type, length);
+    else
+        ui->source->removeSignal(devname, signame);
+
     if (direction & DI_INCOMING)
         ui->destination->addSignal(devname, signame, type, length);
+    else
+        ui->destination->removeSignal(devname, signame);
 }
 
 void ListView::removeSignal(const QString &devname, const QString &signame)
 {
     ui->source->removeSignal(devname, signame);
     ui->destination->removeSignal(devname, signame);
+}
+
+QPointF ListView::signalPosition(const QString &devname, const QString &signame)
+{
+    QPointF p = ui->source->signalPosition(devname, signame);
+    if (!p.isNull())
+        return p;
+    return ui->destination->signalPosition(devname, signame);
+}
+
+void ListView::clearMaps()
+{
+    ui->links->clear();
+}
+
+void ListView::addMap(const QString &srcdevname, const QString &srcsigname,
+                      const QString &dstdevname, const QString &dstsigname)
+{
+    QPointF srcpos = signalPosition(srcdevname, srcsigname);
+    QPointF dstpos = signalPosition(dstdevname, dstsigname);
+    ui->links->addLink(srcpos, dstpos);
 }

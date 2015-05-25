@@ -1,8 +1,6 @@
 #ifndef LISTTAB_H
 #define LISTTAB_H
 
-//#include <QTabWidget>
-//#include <QGraphicsView>
 #include "mapperstuff.h"
 #include "tab.h"
 
@@ -21,7 +19,7 @@ public:
     void update();
     void deviceEvent(mapper_db_device dev, mapper_db_action_t action);
     void signalEvent(mapper_db_signal sig, mapper_db_action_t action);
-    void connectionEvent(mapper_db_connection con, mapper_db_action_t action);
+    void mapEvent(mapper_db_map map, mapper_db_action_t action);
 
 private:
     Ui::ListTab *ui;

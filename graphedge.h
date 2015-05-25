@@ -54,33 +54,44 @@ enum edge_type {
 class GraphEdge : public QGraphicsItem
 {
 public:
-    GraphEdge(GraphTab *graphWidget, GraphNode *sourceNode,
-              GraphNode *destNode, edge_type kind);
+    GraphEdge(GraphTab* graphWidget, QList<GraphNode*> sourceNodes,
+              GraphNode* destNode, edge_type kind);
+    GraphEdge(GraphTab* graphWidget, GraphNode* sourceNode,
+              GraphNode* destNode, edge_type kind)
+    {
+        QList<GraphNode*> s;
+        s << sourceNode;
+        GraphEdge(graphWidget, s, destNode, kind);
+    }
+
     ~GraphEdge();
 
-    GraphNode *sourceNode() const;
-    GraphNode *destNode() const;
+    QList<GraphNode*> sourceNodes() const;
+    GraphNode* destNode() const;
     int hash;
 
     void adjust();
 
     enum { Type = UserType + 2 };
     int type() const Q_DECL_OVERRIDE { return Type; }
+    int numSources() { return sources.count(); }
     bool selected;
     edge_type kind;
 
 protected:
     QRectF boundingRect() const Q_DECL_OVERRIDE;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) Q_DECL_OVERRIDE;
-    void mousePressEvent(QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE;
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) Q_DECL_OVERRIDE;
+//    void mousePressEvent(QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE;
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) Q_DECL_OVERRIDE;
 
 private:
-    GraphNode *source, *dest;
+    QList<GraphNode*> sources;
+    GraphNode* dest;
 
-    QPointF sourcePoint;
+    QList<QPointF> sourcePoints;
     QPointF destPoint;
     qreal arrowSize;
-    GraphTab *graph;
+    GraphTab* graph;
 };
 
 #endif // EDGE_H

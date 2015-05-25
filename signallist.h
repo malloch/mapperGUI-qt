@@ -22,7 +22,7 @@ public:
     void addSignal(const QString &devname, const QString &signame,
                    QChar type, qreal length);
     void removeSignal(const QString &devname, const QString &signame);
-    float signalOffset(const QString & name);
+    QPointF signalPosition(const QString &devname, const QString &signame);
 
 private:
     Ui::SignalList *ui;

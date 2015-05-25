@@ -19,9 +19,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabs->addTab(listTab, "List");
 
 //    // try adding a new GraphTab
-//    overviewTab = new GraphTab(ui->tabs, data);
-//    tabs << overviewTab;
-//    ui->tabs->addTab(overviewTab, "Overview");
+//    GraphTab *graphTab = new GraphTab(ui->tabs, data);
+//    tabs << graphTab;
+//    ui->tabs->addTab(graphTab, "Overview");
     ui->tabs->setCurrentIndex(0);
 
     QTimer *timer = new QTimer(this);

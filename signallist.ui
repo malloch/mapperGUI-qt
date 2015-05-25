@@ -130,6 +130,11 @@
        <string>length</string>
       </property>
      </column>
+     <column>
+      <property name="text">
+       <string>key</string>
+      </property>
+     </column>
     </widget>
    </item>
   </layout>

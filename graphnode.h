@@ -54,7 +54,8 @@ QT_END_NAMESPACE
 class GraphNode : public QGraphicsItem
 {
 public:
-    GraphNode(GraphTab *graphWidget, std::string _name, GraphNode *_parent);
+    GraphNode(GraphTab *graphWidget, std::string _name,
+              uint32_t hash, GraphNode *_parent);
     ~GraphNode();
 
     void addEdge(GraphEdge *edge);
@@ -64,7 +65,7 @@ public:
     enum { Type = UserType + 1 };
     int type() const Q_DECL_OVERRIDE { return Type; }
     std::string name;
-    int hash;
+    uint32_t hash;
     QGraphicsTextItem *label;
     bool touched;
 
