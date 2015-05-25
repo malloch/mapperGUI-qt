@@ -24,6 +24,9 @@ public:
     void removeSignal(const QString &devname, const QString &signame);
     QPointF signalPosition(const QString &devname, const QString &signame);
 
+signals:
+    void updateMaps();
+
 private:
     Ui::SignalList *ui;
     int is_src;

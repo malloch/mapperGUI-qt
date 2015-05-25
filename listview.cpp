@@ -6,6 +6,8 @@ ListView::ListView(QWidget *parent) :
     ui(new Ui::ListView)
 {
     ui->setupUi(this);
+    connect(ui->source, SIGNAL(updateMaps()), this, SIGNAL(updateMaps()));
+    connect(ui->destination, SIGNAL(updateMaps()), this, SIGNAL(updateMaps()));
 }
 
 ListView::~ListView()

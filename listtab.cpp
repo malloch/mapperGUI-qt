@@ -19,6 +19,8 @@ ListTab::ListTab(QTabWidget *parent, MapperStuff *_data) :
     for (auto const &signal : data->db.outputs()) {
         signalEvent(signal, MDB_NEW);
     }
+
+    connect(ui->listview, SIGNAL(updateMaps()), this, SLOT(updateMaps()));
 }
 
 ListTab::~ListTab()
@@ -92,6 +94,14 @@ void ListTab::mapEvent(mapper_db_map map, mapper_db_action_t action)
         break;
     default:
         break;
+    }
+}
+
+void ListTab::updateMaps()
+{
+    ui->listview->clearMaps();
+    for (auto const &map : data->db.maps()) {
+        mapEvent(map, MDB_NEW);
     }
 }
 

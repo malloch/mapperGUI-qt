@@ -13,6 +13,11 @@ SignalList::SignalList(QWidget *parent, const char *_label, int _is_src) :
     ui->tree->setColumnWidth(2, 50);
     ui->tree->setColumnHidden(3, true);
     is_src = _is_src;
+
+    connect(ui->tree, SIGNAL(itemExpanded(QTreeWidgetItem*)),
+            this, SIGNAL(updateMaps()));
+    connect(ui->tree, SIGNAL(itemCollapsed(QTreeWidgetItem*)),
+            this, SIGNAL(updateMaps()));
 }
 
 SignalList::~SignalList()

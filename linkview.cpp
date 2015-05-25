@@ -29,10 +29,11 @@ void LinkView::clear()
 
 void LinkView::addLink(QPointF src, QPointF dst)
 {
-    printf("adding link from (%f,%f)->(%f,%f)\n", src.x(), src.y(), dst.x(), dst.y());
     QPainterPath *path = new QPainterPath();
-//    float xL = ui->links->viewport()->rect().left();
-//    float xR = ui->links->viewport()->rect().right();
+
+    src -= QPointF(0, 50);
+    dst -= QPointF(0, 50);
+
     float width = this->width();
     float halfwidth = width * 0.5;
 
@@ -41,7 +42,6 @@ void LinkView::addLink(QPointF src, QPointF dst)
                   halfwidth, dst.y(),
                   dst.x() * width, dst.y());
 
-//    scene->addRect(ui->links->viewport()->rect());
 //    QPen *pen = new QPen(QBrush()0)
     scene->addPath(*path, QPen(Qt::black, 2));
     QPointF endPoint, arrowP1, arrowP2;

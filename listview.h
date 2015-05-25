@@ -29,6 +29,9 @@ public:
     void addMap(const QString &srcdevname, const QString &srcsigname,
                 const QString &dstdevname, const QString &dstsigname);
 
+signals:
+    void updateMaps();
+
 private:
     Ui::ListView *ui;
 };
