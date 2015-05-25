@@ -19,6 +19,11 @@ SignalList::SignalList(QWidget *parent, const char *_label, int _is_src) :
             this, SIGNAL(updateMaps()));
     connect(ui->tree, SIGNAL(itemCollapsed(QTreeWidgetItem*)),
             this, SIGNAL(updateMaps()));
+
+    // also trigger redraw when columns are sorted
+    ui->tree->header()->setSectionsClickable(true);
+    connect(ui->tree->header(),SIGNAL(sectionClicked(int)),
+            this, SIGNAL(updateMaps()));
 }
 
 SignalList::~SignalList()
@@ -108,6 +113,12 @@ QPointF SignalList::signalPosition(const QString &devname, const QString & signa
         return QPointF(0, 0);
 
     QTreeWidgetItem *item = qlist.first();
-    QRect rect = ui->tree->visualItemRect(item);
-    return QPointF(is_src ? 0 : 1, rect.center().y());
+    if (item->parent()->isExpanded()) {
+        QRect rect = ui->tree->visualItemRect(item);
+        return QPointF(is_src ? 0 : 1, rect.center().y());
+    }
+    else {
+        QRect rect = ui->tree->visualItemRect(item->parent());
+        return QPointF(is_src ? 0 : 1, rect.center().y());
+    }
 }

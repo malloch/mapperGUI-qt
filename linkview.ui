@@ -64,11 +64,20 @@
    </item>
    <item>
     <widget class="QGraphicsView" name="links">
+     <property name="cursor" stdset="0">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
      <property name="verticalScrollBarPolicy">
       <enum>Qt::ScrollBarAlwaysOff</enum>
      </property>
      <property name="horizontalScrollBarPolicy">
       <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="dragMode">
+      <enum>QGraphicsView::RubberBandDrag</enum>
      </property>
     </widget>
    </item>

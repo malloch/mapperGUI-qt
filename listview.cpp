@@ -70,20 +70,27 @@ QPointF ListView::signalPosition(const QString &devname, const QString &signame)
     return ui->destination->signalPosition(devname, signame);
 }
 
-void ListView::clearMaps()
-{
-    ui->links->clear();
-}
-
-void ListView::addMap(const QString &srcdevname, const QString &srcsigname,
+void ListView::addMap(uint32_t hash,
+                      const QString &srcdevname, const QString &srcsigname,
                       const QString &dstdevname, const QString &dstsigname)
 {
     QPointF srcpos = signalPosition(srcdevname, srcsigname);
     QPointF dstpos = signalPosition(dstdevname, dstsigname);
-    ui->links->addLink(srcpos, dstpos);
+    ui->links->addLink(hash, srcpos, dstpos);
+}
+
+void ListView::removeMap(uint32_t hash)
+{
+    ui->links->removeLink(hash);
 }
 
 void ListView::resize()
 {
     ui->links->resize();
 }
+
+void ListView::update()
+{
+    ui->links->update();
+}
+

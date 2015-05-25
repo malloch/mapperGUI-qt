@@ -17,6 +17,7 @@ public:
 
     void clear();
     void resize();
+    void update();
 
     void addDevice(int index, const QString & name, int direction);
     void removeDevice(const QString & name);
@@ -26,9 +27,10 @@ public:
     void removeSignal(const QString &devname, const QString &signame);
     QPointF signalPosition(const QString &devname, const QString &signame);
 
-    void clearMaps();
-    void addMap(const QString &srcdevname, const QString &srcsigname,
+    void addMap(uint32_t hash,
+                const QString &srcdevname, const QString &srcsigname,
                 const QString &dstdevname, const QString &dstsigname);
+    void removeMap(uint32_t hash);
 
 signals:
     void updateMaps();

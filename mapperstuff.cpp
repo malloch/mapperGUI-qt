@@ -38,7 +38,7 @@ int MapperStuff::poll()
 
 void deviceHandler(mapper_db_device dev, mapper_db_action_t action, void *user)
 {
-    printf("QtMonitor got update from device '%s'\n", dev->name);
+//    printf("QtMonitor got update from device '%s'\n", dev->name);
 
     MapperStuff *data = (MapperStuff*) user;
     foreach (Tab *tab, data->deviceCallbacks)
@@ -47,7 +47,7 @@ void deviceHandler(mapper_db_device dev, mapper_db_action_t action, void *user)
 
 void signalHandler(mapper_db_signal sig, mapper_db_action_t action, void *user)
 {
-    printf("QtMonitor got update from signal '%s'\n", sig->name);
+//    printf("QtMonitor got update from signal '%s'\n", sig->name);
 
     MapperStuff *data = (MapperStuff*) user;
     foreach (Tab *tab, data->signalCallbacks)
@@ -56,12 +56,12 @@ void signalHandler(mapper_db_signal sig, mapper_db_action_t action, void *user)
 
 void mapHandler(mapper_db_map map, mapper_db_action_t action, void *user)
 {
-    printf("QtMonitor got update from map ");
-    if (map->num_sources > 1)
-        printf("[");
-    for (int i = 0; i < map->num_sources; i++)
-        printf("%s, ", map->sources[i].signal->name);
-    printf("\b\b%s -> %s", map->num_sources > 1 ? "[" : "", map->destination.signal->name);
+//    printf("QtMonitor got update from map ");
+//    if (map->num_sources > 1)
+//        printf("[");
+//    for (int i = 0; i < map->num_sources; i++)
+//        printf("%s, ", map->sources[i].signal->name);
+//    printf("\b\b%s -> %s", map->num_sources > 1 ? "[" : "", map->destination.signal->name);
 
     MapperStuff *data = (MapperStuff*) user;
     foreach (Tab *tab, data->mapCallbacks)

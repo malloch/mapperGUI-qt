@@ -3,6 +3,7 @@
 
 #include "graphtab.h"
 #include "listtab.h"
+#include "patchingtab.h"
 #include <QMainWindow>
 #include <QTimer>
 

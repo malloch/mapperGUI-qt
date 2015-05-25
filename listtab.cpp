@@ -54,8 +54,6 @@ void ListTab::signalEvent(mapper_db_signal sig, mapper_db_action_t action)
                                 QString::fromStdString(sig->name),
                                 QChar(sig->type), sig->length, sig->direction);
         // redraw maps
-        ui->listview->clearMaps();
-        // add current devices
         for (auto const &map : data->db.maps()) {
             mapEvent(map, MDB_NEW);
         }
@@ -76,7 +74,8 @@ void ListTab::mapEvent(mapper_db_map map, mapper_db_action_t action)
         mapper_db_signal src, dst = map->destination.signal;
         for (int i = 0; i < map->num_sources; i++) {
             src = map->sources[i].signal;
-            ui->listview->addMap(QString::fromStdString(src->device->name),
+            ui->listview->addMap(map->hash,
+                                 QString::fromStdString(src->device->name),
                                  QString::fromStdString(src->name),
                                  QString::fromStdString(dst->device->name),
                                  QString::fromStdString(dst->name));
@@ -85,12 +84,7 @@ void ListTab::mapEvent(mapper_db_map map, mapper_db_action_t action)
     case MDB_MODIFY:
         break;
     case MDB_REMOVE:
-        // redraw maps
-        ui->listview->clearMaps();
-        // add current devices
-        for (auto const &map : data->db.maps()) {
-            mapEvent(map, MDB_NEW);
-        }
+        ui->listview->removeMap(map->hash);
         break;
     default:
         break;
@@ -99,7 +93,6 @@ void ListTab::mapEvent(mapper_db_map map, mapper_db_action_t action)
 
 void ListTab::updateMaps()
 {
-    ui->listview->clearMaps();
     for (auto const &map : data->db.maps()) {
         mapEvent(map, MDB_NEW);
     }
@@ -107,14 +100,10 @@ void ListTab::updateMaps()
 
 void ListTab::update()
 {
-    ;
+//    ui->listview->update();
 }
 
 void ListTab::resizeEvent(QResizeEvent *event)
 {
-    ui->listview->clearMaps();
     ui->listview->resize();
-    for (auto const &map : data->db.maps()) {
-        mapEvent(map, MDB_NEW);
-    }
 }

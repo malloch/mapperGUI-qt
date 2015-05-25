@@ -90,7 +90,7 @@ GraphNode* GraphEdge::destNode() const
 
 void GraphEdge::adjust()
 {
-    printf("WE habe %d sourcePoints\n", sourcePoints.count());
+    printf("WE have %d sourcePoints\n", sourcePoints.count());
     if (!sources.count() || !sourcePoints.count() || !dest)
         return;
 
