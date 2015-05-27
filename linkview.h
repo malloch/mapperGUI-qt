@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QGraphicsView>
 #include <QGraphicsItem>
+#include <QMouseEvent>
 
 #define arrowSize 8
 
@@ -20,7 +21,6 @@ public:
     ~LinkView();
 
     void clear();
-//    void update();
     void addLink(uint32_t hash, QPointF src, QPointF dst);
     void removeLink(uint32_t hash);
     void resize();
@@ -29,22 +29,14 @@ public:
     {
     public:
         Edge(uint32_t _hash, QPointF _src, QPointF _dst)
-            : hash(_hash), src(_src), dst(_dst), selected(false)
-        {
-            setFlags(ItemIsSelectable);
-            setAcceptHoverEvents(true);
-            setAcceptedMouseButtons(Qt::LeftButton);
-//            update();
-        };
+            : hash(_hash), src(_src), dst(_dst), selected(false) {};
         ~Edge() {};
 
         void resize(QPointF &_src, QPointF &_dst)
         {
-            printf("edge::resize\n");
             prepareGeometryChange();
             src = _src;
             dst = _dst;
-//            update();
         }
 
         uint32_t hash;
@@ -54,25 +46,20 @@ public:
 
     protected:
         QRectF boundingRect() const Q_DECL_OVERRIDE;
-        void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) Q_DECL_OVERRIDE;
-        void mousePressEvent(QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE
-        {
-            printf("mouse press event\n");
-            selected = (selected == false);
-            update();
-        };
-        void hoverEnterEvent(QGraphicsSceneHoverEvent *event) Q_DECL_OVERRIDE
-        {
-//            printf("hover event\n");
-//            setSelected(isSelected()==false);
-        };
-
+        void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+                   QWidget* widget) Q_DECL_OVERRIDE;
     };
+
+protected:
+    bool eventFilter(QObject *object, QEvent *event);
 
 private:
     Ui::LinkView *ui;
     QGraphicsScene *scene;
     bool needsUpdate;
+    QPointF lastPos;
+    void clearSelected();
+    void updateSelected(const QPointF &newPos);
 };
 
 #endif // LINKVIEW_H
