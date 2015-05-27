@@ -114,70 +114,60 @@ void LinkView::updateSelected(const QPointF &newPos)
 
     float width = this->rect().width() - 2;
     float xratio = (lastPos.x() / width);
-    // adjust for bezier shape
-    float yratio = cosf(xratio * M_PI + M_PI) * 0.5 + 0.5;
-    float yratioInv = 1 - yratio;
-    float yratioSquashed = cosf(xratio * 0.78 * M_PI + M_PI) * 0.5 + 0.5;
-    float yratioSquashedInv = cosf((1 - xratio) * 0.78 * M_PI + M_PI) * 0.5 + 0.5;
-    float yratioSame = cosf(xratio * M_PI * 1.28);
-    float yratioSameInv = 1 - yratioSame;
-//    float coeffP0 = pow((1 - xratio), 3);
-//    float coeffP1 = 3 * pow((1 - xratio), 2) * xratio;
-//    float coeffP2 = 3 * (1 - xratio) * pow(xratio,2);
-//    float coeffP3 = pow(xratio,3);
-    qDebug() << "newPos:" << newPos << "lastpos:" << lastPos << "xratio:" << xratio << "yratioSameInv: " << yratioSameInv << "manhattan:"<< length;
 
     // need to check for intersections between map bezier curves and linesegment
     /* Since we have a consistent structure to our map curves we can simplify
      * this task somewhat instead of finding arbitrary bezier intersections.*/
-    // case 1: left -> right
-    // case 2: right -> left
-    // case 3: left -> left
-    // case 4: right -> right
+
+    // we will approximate shapes with cosine since it is easy to precompute
+    float yratioSrcLeft = cosf(xratio * M_PI + M_PI) * 0.5 + 0.5;
+    float yratioSrcRight = 1 - yratioSrcLeft;
+
+    // for left->left and right->right links we will approximate with a circle
+    float yratioBothLeft = sqrt(1 - pow(xratio * 2.56410256410256, 2)) * 0.5;
+    float yratioBothRight = sqrt(1 -  pow((1-xratio) * 2.56410256410256, 2)) * 0.5;
 
     foreach (QGraphicsItem *item, scene->items()) {
         if (Edge *edge = qgraphicsitem_cast<Edge *>(item)) {
+            if (edge->selected)
+                continue;
             if (edge->src.x() == edge->dst.x()) {
                 // two possible points of intersection for each x
-                float midpoint = (edge->dst.y() + edge->src.y()) * 0.5;
                 if (edge->src.x() > 0) {
                     // right->right
                     if (xratio < 0.61)
                         continue;
-                    float y = edge->src.y() + (edge->dst.y() - edge->src.y()) * yratioSameInv;
-                    float diff = fabs(midpoint - y);
-                    float ydiff = fabs(midpoint - lastPos.y());
-                    qDebug() << "midpoint:" << midpoint << "y:" << y << "diff:" << diff << "ydiff" << ydiff << "distance" << fabs(diff-ydiff);
-                    if (fabs(diff - ydiff) > length)
+                    float midpoint = (edge->dst.y() + edge->src.y()) * 0.5;
+                    float ydist = fabs(edge->dst.y() - edge->src.y()) * yratioBothRight;
+                    float cursordist = fabs(midpoint - lastPos.y());
+                    if (fabs(cursordist - ydist) > length)
                         continue;
                 }
                 else {
                     // left->left
                     if (xratio > 0.39)
                         continue;
-                    float y = edge->src.y() + (edge->dst.y() - edge->src.y()) * yratioSame;
-                    float diff = fabs(midpoint - y);
-                    float ydiff = fabs(midpoint - lastPos.y());
-                    if (fabs(diff - ydiff) > length)
+                    float midpoint = (edge->dst.y() + edge->src.y()) * 0.5;
+                    float ydist = fabs(edge->dst.y() - edge->src.y()) * yratioBothLeft;
+                    float cursordist = fabs(midpoint - lastPos.y());
+                    if (fabs(cursordist - ydist) > length)
                         continue;
                 }
             }
             else if (edge->dst.x() > 0) {
                 // left->right
-                float y = edge->src.y() + (edge->dst.y() - edge->src.y()) * yratio;
+                float y = edge->src.y() + (edge->dst.y() - edge->src.y()) * yratioSrcLeft;
                 if (fabs(y-lastPos.y()) > length)
                     continue;
             }
             else {
                 // right->left
-                float y = edge->src.y() + (edge->dst.y() - edge->src.y()) * yratioInv;
+                float y = edge->src.y() + (edge->dst.y() - edge->src.y()) * yratioSrcRight;
                 if (fabs(y-lastPos.y()) > length)
                     continue;
             }
-            if (!edge->selected) {
-                updated++;
-                edge->selected = true;
-            }
+            updated++;
+            edge->selected = true;
         }
     }
     if (updated)
@@ -196,17 +186,16 @@ bool LinkView::eventFilter(QObject *object, QEvent *event)
 
     switch (event->type()) {
     case QEvent::GraphicsSceneMousePress: {
-//        qDebug() << "QEvent::GraphicsSceneMousePress" << cast->buttonDownScenePos(cast->button());
-        clearSelected();
+        if (!(cast->modifiers() & Qt::ShiftModifier))
+            clearSelected();
         lastPos = cast->scenePos();
         break;
     }
     case QEvent::GraphicsSceneMouseMove:
-//        qDebug() << "QEvent::GraphicsSceneMouseMove" << cast->scenePos();
         updateSelected(cast->scenePos());
         break;
     case QEvent::GraphicsSceneMouseRelease:
-//        qDebug() << "QEvent::GraphicsSceneMouseRelease" << cast->scenePos();
+        // refresh connection props display for selection list
         break;
     default:
         return QObject::eventFilter(object, event);
