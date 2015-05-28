@@ -31,7 +31,7 @@ void LinkView::clear()
     scene->clear();
 }
 
-void LinkView::addLink(uint32_t hash, QPointF src, QPointF dst)
+void LinkView::addLink(uint32_t hash, QPointF src, QPointF dst, bool muted)
 {
     float width = this->rect().width() - 2;
     src.setX(src.x() * width);
@@ -43,6 +43,7 @@ void LinkView::addLink(uint32_t hash, QPointF src, QPointF dst)
         if (Edge *edge = qgraphicsitem_cast<Edge *>(item)) {
             if (edge->hash == hash) {
                 link = edge;
+                edge->muted = muted;
                 break;
             }
         }
@@ -51,7 +52,7 @@ void LinkView::addLink(uint32_t hash, QPointF src, QPointF dst)
         link->resize(src, dst);
     }
     else {
-        scene->addItem(new Edge(hash, src, dst));
+        scene->addItem(new Edge(hash, src, dst, muted));
     }
     scene->update();
 }
@@ -97,6 +98,8 @@ void LinkView::clearSelected()
     }
     if (updated)
         scene->update();
+    selectedMapHashes.clear();
+    selectedMaps(selectedMapHashes);
 }
 
 void LinkView::updateSelected(const QPointF &newPos)
@@ -168,6 +171,7 @@ void LinkView::updateSelected(const QPointF &newPos)
             }
             updated++;
             edge->selected = true;
+            selectedMapHashes << edge->hash;
         }
     }
     if (updated)
@@ -195,7 +199,10 @@ bool LinkView::eventFilter(QObject *object, QEvent *event)
         updateSelected(cast->scenePos());
         break;
     case QEvent::GraphicsSceneMouseRelease:
-        // refresh connection props display for selection list
+        if (!selectedMapHashes.isEmpty()) {
+            // send qt SIGNAL to connection props display
+            selectedMaps(selectedMapHashes);
+        }
         break;
     default:
         return QObject::eventFilter(object, event);
@@ -220,6 +227,8 @@ void LinkView::Edge::paint(QPainter *painter,
                            QWidget *widget)
 {
     QPainterPath *path = new QPainterPath();
+    QColor color(selected * 255, 0, 0, 255);
+    QPen pen(color, 2, muted ? Qt::DashLine : Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
 
     float halfwidth = (widget->width() - 2) * 0.5;
 
@@ -228,10 +237,7 @@ void LinkView::Edge::paint(QPainter *painter,
                   halfwidth, dst.y(),
                   dst.x(), dst.y());
 
-    if (selected)
-        painter->setPen(QPen(Qt::red, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    else
-        painter->setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    painter->setPen(pen);
     painter->drawPath(*path);
 
     // Draw the arrow
@@ -240,9 +246,8 @@ void LinkView::Edge::paint(QPainter *painter,
     arrowP1 = endPoint + QPointF(dst.x() ? -10 : 10, 4);
     arrowP2 = endPoint + QPointF(dst.x() ? -10 : 10, -4);
 
-    if (selected)
-        painter->setBrush(Qt::red);
-    else
-        painter->setBrush(Qt::black);
+    pen.setStyle(Qt::SolidLine);
+    painter->setPen(pen);
+    painter->setBrush(color);
     painter->drawPolygon(QPolygonF() << endPoint << arrowP1 << arrowP2);
 }

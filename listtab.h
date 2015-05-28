@@ -26,6 +26,7 @@ protected:
 
 public slots:
     void updateMaps();
+    void selectedMaps(QList<uint32_t> hashes);
 
 private:
     Ui::ListTab *ui;

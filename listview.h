@@ -29,11 +29,12 @@ public:
 
     void addMap(uint32_t hash,
                 const QString &srcdevname, const QString &srcsigname,
-                const QString &dstdevname, const QString &dstsigname);
+                const QString &dstdevname, const QString &dstsigname, bool muted);
     void removeMap(uint32_t hash);
 
 signals:
     void updateMaps();
+    void selectedMaps(QList<uint32_t> hashes);
 
 private:
     Ui::ListView *ui;

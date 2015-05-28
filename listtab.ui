@@ -28,19 +28,45 @@
    </property>
    <item row="0" column="0">
     <widget class="QSplitter" name="splitter">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <property name="childrenCollapsible">
       <bool>false</bool>
      </property>
-     <widget class="ConnectionProps" name="props" native="true">
+     <widget class="QWidget" name="header" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>5</verstretch>
        </sizepolicy>
       </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="ConnectionProps" name="connectionProps" native="true"/>
+       </item>
+       <item>
+        <widget class="QWidget" name="liveSignal" native="true"/>
+       </item>
+      </layout>
      </widget>
      <widget class="ListView" name="listview" native="true">
       <property name="sizePolicy">

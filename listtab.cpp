@@ -2,6 +2,7 @@
 #include "ui_listtab.h"
 #include <math.h>
 #include <QSplitter>
+#include <QDebug>
 
 ListTab::ListTab(QTabWidget *parent, MapperStuff *_data) :
     Tab(parent, _data),
@@ -21,6 +22,8 @@ ListTab::ListTab(QTabWidget *parent, MapperStuff *_data) :
     }
 
     connect(ui->listview, SIGNAL(updateMaps()), this, SLOT(updateMaps()));
+    connect(ui->listview, SIGNAL(selectedMaps(QList<uint32_t>)),
+            this, SLOT(selectedMaps(QList<uint32_t>)));
 }
 
 ListTab::~ListTab()
@@ -78,7 +81,8 @@ void ListTab::mapEvent(mapper_db_map map, mapper_db_action_t action)
                                  QString::fromStdString(src->device->name),
                                  QString::fromStdString(src->name),
                                  QString::fromStdString(dst->device->name),
-                                 QString::fromStdString(dst->name));
+                                 QString::fromStdString(dst->name),
+                                 map->muted);
         }}
         break;
     case MDB_MODIFY:
@@ -96,6 +100,27 @@ void ListTab::updateMaps()
     for (auto const &map : data->db.maps()) {
         mapEvent(map, MDB_NEW);
     }
+}
+
+void ListTab::selectedMaps(QList<uint32_t> hashes)
+{
+    if (hashes.isEmpty()) {
+        ui->connectionProps->clearProps();
+        return;
+    }
+    qDebug() << "selected maps:" << hashes;
+    if (hashes.count() != 1) {
+        qDebug() << "Only handling single map selections for now.";
+        return;
+    }
+    mapper::Db::Map map = data->db.map(hashes.at(0));
+    if (!map) {
+        qDebug() << "Couldn't find map in database.";
+        return;
+    }
+    qDebug() << "muted: " << (int)map.get("muted");
+    ui->connectionProps->displayProps(map.mode(), map.get("muted"), map.get("calibrating"),
+                                      QString::fromStdString(map.expression()));
 }
 
 void ListTab::update()

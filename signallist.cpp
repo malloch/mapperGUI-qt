@@ -22,7 +22,7 @@ SignalList::SignalList(QWidget *parent, const char *_label, int _is_src) :
 
     // also trigger redraw when columns are sorted
     ui->tree->header()->setSectionsClickable(true);
-    connect(ui->tree->header(),SIGNAL(sectionClicked(int)),
+    connect(ui->tree->header(), SIGNAL(sectionClicked(int)),
             this, SIGNAL(updateMaps()));
 }
 

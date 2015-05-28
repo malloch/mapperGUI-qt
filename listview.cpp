@@ -8,6 +8,8 @@ ListView::ListView(QWidget *parent) :
     ui->setupUi(this);
     connect(ui->source, SIGNAL(updateMaps()), this, SIGNAL(updateMaps()));
     connect(ui->destination, SIGNAL(updateMaps()), this, SIGNAL(updateMaps()));
+    connect(ui->links, SIGNAL(selectedMaps(QList<uint32_t>)),
+            this, SIGNAL(selectedMaps(QList<uint32_t>)));
 }
 
 ListView::~ListView()
@@ -72,11 +74,12 @@ QPointF ListView::signalPosition(const QString &devname, const QString &signame)
 
 void ListView::addMap(uint32_t hash,
                       const QString &srcdevname, const QString &srcsigname,
-                      const QString &dstdevname, const QString &dstsigname)
+                      const QString &dstdevname, const QString &dstsigname,
+                      bool muted)
 {
     QPointF srcpos = signalPosition(srcdevname, srcsigname);
     QPointF dstpos = signalPosition(dstdevname, dstsigname);
-    ui->links->addLink(hash, srcpos, dstpos);
+    ui->links->addLink(hash, srcpos, dstpos, muted);
 }
 
 void ListView::removeMap(uint32_t hash)
