@@ -35,6 +35,7 @@ public:
 signals:
     void updateMaps();
     void selectedMaps(QList<uint32_t> hashes);
+    void selectedSigs(bool is_src, QList<QString> signames);
 
 private:
     Ui::ListView *ui;

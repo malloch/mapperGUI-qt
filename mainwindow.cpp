@@ -40,6 +40,10 @@ MainWindow::~MainWindow()
 void MainWindow::poll()
 {
     int count = data->poll();
+    if (data->ready == false && data->device.ready()) {
+        data->ready = true;
+        setWindowTitle(QString::fromStdString(data->device.name()));
+    }
 //    if (count) {
 //        // drawing updates depend on current mode...
 //        if (data->deviceFlags) {

@@ -19,6 +19,9 @@ public:
     virtual void deviceEvent(mapper_db_device dev, mapper_db_action_t action) = 0;
     virtual void signalEvent(mapper_db_signal sig, mapper_db_action_t action) = 0;
     virtual void mapEvent(mapper_db_map map, mapper_db_action_t action) = 0;
+    virtual void signalUpdateEvent(mapper_signal sig, mapper_db_signal props,
+                                   int instance_id, void *value, int count,
+                                   mapper_timetag_t *timetag) = 0;
 
 protected:
     MapperStuff *data;

@@ -24,8 +24,12 @@ public:
     void removeSignal(const QString &devname, const QString &signame);
     QPointF signalPosition(const QString &devname, const QString &signame);
 
+public slots:
+    void selectionChanged();
+
 signals:
     void updateMaps();
+    void selectedSigs(bool _is_src, QList<QString> names);
 
 private:
     Ui::SignalList *ui;

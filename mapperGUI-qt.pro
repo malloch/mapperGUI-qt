@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = mapperGUI-qt
 TEMPLATE = app
@@ -34,7 +34,9 @@ SOURCES += main.cpp\
     mapperstuff.cpp \
     signalsearchbar.cpp \
     listview.cpp \
-    tab.cpp
+    tab.cpp \
+    qcustomplot.cpp \
+    signalplotter.cpp
 
 HEADERS  += mainwindow.h \
     graphnode.h \
@@ -52,7 +54,9 @@ HEADERS  += mainwindow.h \
     mapperstuff.h \
     signalsearchbar.h \
     listview.h \
-    tab.h
+    tab.h \
+    qcustomplot.h \
+    signalplotter.h
 
 FORMS    += mainwindow.ui \
     linkview.ui \
@@ -64,7 +68,8 @@ FORMS    += mainwindow.ui \
     signalsearchbar.ui \
     patchingtab.ui \
     listtab.ui \
-    listview.ui
+    listview.ui \
+    signalplotter.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../../usr/local/lib/release/ -lmapper-0
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../../usr/local/lib/debug/ -lmapper-0

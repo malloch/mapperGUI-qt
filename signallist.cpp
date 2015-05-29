@@ -1,6 +1,8 @@
 #include "signallist.h"
 #include "ui_signallist.h"
 #include "iostream"
+#include <QDebug>
+#include <QAbstractItemView>
 
 SignalList::SignalList(QWidget *parent, const char *_label, int _is_src) :
     QWidget(parent),
@@ -15,10 +17,13 @@ SignalList::SignalList(QWidget *parent, const char *_label, int _is_src) :
     ui->tree->setAlternatingRowColors(true);
     is_src = _is_src;
 
+//    ui->tree->setSelectionMode(QAbstractItemView::MultiSelection);
+
     connect(ui->tree, SIGNAL(itemExpanded(QTreeWidgetItem*)),
             this, SIGNAL(updateMaps()));
     connect(ui->tree, SIGNAL(itemCollapsed(QTreeWidgetItem*)),
             this, SIGNAL(updateMaps()));
+    connect(ui->tree, SIGNAL(itemSelectionChanged()), this, SLOT(selectionChanged()));
 
     // also trigger redraw when columns are sorted
     ui->tree->header()->setSectionsClickable(true);
@@ -70,6 +75,7 @@ void SignalList::addSignal(const QString &devname, const QString &signame, QChar
 
     QString qkey;
     qkey.append(devname);
+    qkey.append("/");
     qkey.append(signame);
 
     qlist = ui->tree->findItems(qkey, Qt::MatchExactly, 3);
@@ -91,6 +97,7 @@ void SignalList::removeSignal(const QString &devname, const QString &signame)
 {
     QString qkey;
     qkey.append(devname);
+    qkey.append("/");
     qkey.append(signame);
 
     QList<QTreeWidgetItem *> qlist = ui->tree->findItems(qkey, Qt::MatchExactly | Qt::MatchRecursive, 3);
@@ -106,6 +113,7 @@ QPointF SignalList::signalPosition(const QString &devname, const QString & signa
 {
     QString qkey;
     qkey.append(devname);
+    qkey.append("/");
     qkey.append(signame);
 
     QList<QTreeWidgetItem *> qlist = ui->tree->findItems(qkey, Qt::MatchExactly | Qt::MatchRecursive, 3);
@@ -121,4 +129,18 @@ QPointF SignalList::signalPosition(const QString &devname, const QString & signa
         QRect rect = ui->tree->visualItemRect(item->parent());
         return QPointF(is_src ? 0 : 1, rect.center().y());
     }
+}
+
+void SignalList::selectionChanged()
+{
+    qDebug() << "selectionChanged(), is_src:" << is_src << "selections" << ui->tree->selectedItems();
+    QList<QTreeWidgetItem*> selected = ui->tree->selectedItems();
+    // pass list of selected signal names to parent
+    QList<QString> names;
+    foreach(QTreeWidgetItem *item, selected) {
+        QString name = item->text(3);
+        if (name.length())
+            names << name;
+    }
+    selectedSigs(is_src, names);
 }

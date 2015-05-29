@@ -10,6 +10,10 @@ ListView::ListView(QWidget *parent) :
     connect(ui->destination, SIGNAL(updateMaps()), this, SIGNAL(updateMaps()));
     connect(ui->links, SIGNAL(selectedMaps(QList<uint32_t>)),
             this, SIGNAL(selectedMaps(QList<uint32_t>)));
+    connect(ui->source, SIGNAL(selectedSigs(bool, QList<QString>)),
+            this, SIGNAL(selectedSigs(bool, QList<QString>)));
+    connect(ui->destination, SIGNAL(selectedSigs(bool, QList<QString>)),
+            this, SIGNAL(selectedSigs(bool, QList<QString>)));
 }
 
 ListView::~ListView()

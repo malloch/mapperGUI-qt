@@ -244,6 +244,13 @@ void GraphTab::mapEvent(mapper_db_map map, mapper_db_action_t action)
 //    }
 }
 
+void GraphTab::signalUpdateEvent(mapper_signal sig, mapper_db_signal props,
+                                 int instance_id, void *value, int count,
+                                 mapper_timetag_t *timetag)
+{
+;
+}
+
 
 void GraphTab::itemMoved()
 {

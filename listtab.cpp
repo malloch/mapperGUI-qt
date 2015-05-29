@@ -24,6 +24,8 @@ ListTab::ListTab(QTabWidget *parent, MapperStuff *_data) :
     connect(ui->listview, SIGNAL(updateMaps()), this, SLOT(updateMaps()));
     connect(ui->listview, SIGNAL(selectedMaps(QList<uint32_t>)),
             this, SLOT(selectedMaps(QList<uint32_t>)));
+    connect(ui->listview, SIGNAL(selectedSigs(bool, QList<QString>)),
+            this, SLOT(selectedSigs(bool, QList<QString>)));
 }
 
 ListTab::~ListTab()
@@ -95,6 +97,13 @@ void ListTab::mapEvent(mapper_db_map map, mapper_db_action_t action)
     }
 }
 
+void ListTab::signalUpdateEvent(mapper_signal sig, mapper_db_signal props,
+                                int instance_id, void *value, int count,
+                                mapper_timetag_t *timetag)
+{
+    qDebug() << "signalUpdateEvent" << props->name;
+}
+
 void ListTab::updateMaps()
 {
     for (auto const &map : data->db.maps()) {
@@ -106,6 +115,7 @@ void ListTab::selectedMaps(QList<uint32_t> hashes)
 {
     if (hashes.isEmpty()) {
         ui->connectionProps->clearProps();
+//        ui->listview->clearSelection;
         return;
     }
     qDebug() << "selected maps:" << hashes;
@@ -121,6 +131,41 @@ void ListTab::selectedMaps(QList<uint32_t> hashes)
     qDebug() << "muted: " << (int)map.get("muted");
     ui->connectionProps->displayProps(map.mode(), map.get("muted"), map.get("calibrating"),
                                       QString::fromStdString(map.expression()));
+}
+
+void ListTab::selectedSigs(bool is_src, QList<QString> signames)
+{
+    qDebug() << "ListTab::selectedSigs" << is_src << signames;
+    QList<QString> *listptr = is_src ? &selectedSrcSigs : &selectedDstSigs;
+    QList<QString> diff;
+    foreach(const QString &name, *listptr) {
+        if (!signames.contains(name)) {
+            diff << name;
+        }
+    }
+    foreach(const QString &name, diff) {
+        // remove plot
+        // unmap signal
+        data->cancelSignalUpdates(this, name);
+        // remove item from list
+        (*listptr).removeAll(name);
+    }
+    diff.clear();
+    foreach(const QString &name, signames) {
+        if (!(*listptr).contains(name)) {
+            qDebug() << "should be adding sig" << name;
+            diff << name;
+        }
+    }
+    foreach(const QString &name, diff) {
+        // map signal
+        qDebug() << "subscribing to" << name;
+        data->getSignalUpdates(this, name);
+        // add plot
+
+        // add to list
+        *listptr << name;
+    }
 }
 
 void ListTab::update()
