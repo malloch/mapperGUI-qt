@@ -64,6 +64,7 @@ void MainWindow::poll()
 //    }
 
     // TODO: don't update unless tab is selected
+    data->now = data->device.now();
     foreach (Tab *tab, tabs)
         tab->update();
 }

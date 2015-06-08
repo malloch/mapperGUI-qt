@@ -30,7 +30,9 @@ ListTab::ListTab(QTabWidget *parent, MapperStuff *_data) :
 
 ListTab::~ListTab()
 {
-    ;
+    // disconnect any mapped signals
+    ui->liveSignal->removePlot();
+    delete ui;
 }
 
 void ListTab::deviceEvent(mapper_db_device dev, mapper_db_action_t action)
@@ -101,7 +103,10 @@ void ListTab::signalUpdateEvent(mapper_signal sig, mapper_db_signal props,
                                 int instance_id, void *value, int count,
                                 mapper_timetag_t *timetag)
 {
-    qDebug() << "signalUpdateEvent" << props->name;
+//    qDebug() << "signalUpdateEvent" << props->name;
+    QString qname = QString::fromStdString(props->name);
+    ui->liveSignal->updatePlot(qname, *(double*)value,
+                               mapper_timetag_get_double(*timetag));
 }
 
 void ListTab::updateMaps()
@@ -144,9 +149,12 @@ void ListTab::selectedSigs(bool is_src, QList<QString> signames)
         }
     }
     foreach(const QString &name, diff) {
-        // remove plot
         // unmap signal
         data->cancelSignalUpdates(this, name);
+
+        // remove plot
+        ui->liveSignal->removePlot(name);
+
         // remove item from list
         (*listptr).removeAll(name);
     }
@@ -161,7 +169,9 @@ void ListTab::selectedSigs(bool is_src, QList<QString> signames)
         // map signal
         qDebug() << "subscribing to" << name;
         data->getSignalUpdates(this, name);
+
         // add plot
+        ui->liveSignal->addPlot(name);
 
         // add to list
         *listptr << name;
@@ -171,6 +181,7 @@ void ListTab::selectedSigs(bool is_src, QList<QString> signames)
 void ListTab::update()
 {
 //    ui->listview->update();
+    ui->liveSignal->update(data->now);
 }
 
 void ListTab::resizeEvent(QResizeEvent *event)

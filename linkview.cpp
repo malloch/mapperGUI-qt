@@ -172,6 +172,8 @@ void LinkView::updateSelected(const QPointF &newPos)
             updated++;
             edge->selected = true;
             selectedMapHashes << edge->hash;
+            // send qt SIGNAL to connection props display
+            selectedMaps(selectedMapHashes);
         }
     }
     if (updated)
@@ -190,8 +192,11 @@ bool LinkView::eventFilter(QObject *object, QEvent *event)
 
     switch (event->type()) {
     case QEvent::GraphicsSceneMousePress: {
-        if (!(cast->modifiers() & Qt::ShiftModifier))
+        if (!(cast->modifiers() & Qt::ShiftModifier)) {
             clearSelected();
+            // send qt SIGNAL to connection props display
+            selectedMaps(selectedMapHashes);
+        }
         lastPos = cast->scenePos();
         break;
     }
@@ -200,8 +205,7 @@ bool LinkView::eventFilter(QObject *object, QEvent *event)
         break;
     case QEvent::GraphicsSceneMouseRelease:
         if (!selectedMapHashes.isEmpty()) {
-            // send qt SIGNAL to connection props display
-            selectedMaps(selectedMapHashes);
+            ;
         }
         break;
     default:

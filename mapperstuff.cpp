@@ -2,7 +2,7 @@
 #include <QDebug>
 
 MapperStuff::MapperStuff() :
-    monitor(SUBSCRIBE_ALL),
+    monitor(),
     db(monitor.db()),
     device("/monitor")
 {
@@ -14,6 +14,9 @@ MapperStuff::MapperStuff() :
 
 MapperStuff::~MapperStuff()
 {
+    // disconnect any mapped signals
+    monitor.unmap(db.maps(device));
+    monitor.unsubscribe();
 }
 
 void MapperStuff::addDeviceCallback(Tab *tab)
@@ -48,35 +51,57 @@ void MapperStuff::getSignalUpdates(Tab *tab, const QString& signame)
 
 void MapperStuff::cancelSignalUpdates(Tab *tab, const QString &signame)
 {
+    if (signame != 0) {
+        mapper::Signal sig = device.inputs(signame.toStdString());
+        if (sig)
+            monitor.unmap(db.maps(sig));
+    }
+    else {
+        // unmap all
+        monitor.unmap(db.maps(device));
+    }
 
+    signalUpdateCallbacks.removeAll(tab);
 }
 
 int MapperStuff::poll()
 {
-    int count = monitor.poll();
-    count += device.poll();
+    int count = monitor.poll(1);
+    count += device.poll(1);
+    if (!ready && device.ready()) {
+        db.flush();
+        monitor.subscribe(SUBSCRIBE_DEVICE);
+    }
     return count;
 }
 
 void deviceHandler(mapper_db_device dev, mapper_db_action_t action, void *user)
 {
-//    printf("QtMonitor got update from device '%s'\n", dev->name);
+    qDebug() << "QtMonitor got update from device" << dev->name;
 
     MapperStuff *data = (MapperStuff*) user;
     // filter out our own signals
-    if (data->device.ready() && (data->device.name().compare(dev->name)==0))
+    if (!data->ready)
         return;
+    if (data->device.name().compare(dev->name)==0)
+        return;
+    if (action == MDB_NEW) {
+        // autosubscribe to future updates
+        data->monitor.subscribe(dev, SUBSCRIBE_ALL, -1);
+    }
     foreach (Tab *tab, data->deviceCallbacks)
         tab->deviceEvent(dev, action);
 }
 
 void signalHandler(mapper_db_signal sig, mapper_db_action_t action, void *user)
 {
-//    printf("QtMonitor got update from signal '%s'\n", sig->name);
+    qDebug() << "QtMonitor got update from signal" << sig->name;
 
     MapperStuff *data = (MapperStuff*) user;
     // filter out our own signals
-    if (data->device.ready() && (data->device.name().compare(sig->device->name)==0))
+    if (!data->ready)
+        return;
+    if (data->device.name().compare(sig->device->name)==0)
         return;
     foreach (Tab *tab, data->signalCallbacks)
         tab->signalEvent(sig, action);
@@ -93,14 +118,14 @@ void mapHandler(mapper_db_map map, mapper_db_action_t action, void *user)
 
     MapperStuff *data = (MapperStuff*) user;
     // filter out our own signals
-    if (data->device.ready()) {
-        std::string name = data->device.name();
-        if (name.compare(map->destination.signal->device->name)==0)
+    if (!data->ready)
+        return;
+    std::string name = data->device.name();
+    if (name.compare(map->destination.signal->device->name)==0)
+        return;
+    for (int i = 0; i < map->num_sources; i++) {
+        if (name.compare(map->sources[i].signal->device->name)==0)
             return;
-        for (int i = 0; i < map->num_sources; i++) {
-            if (name.compare(map->sources[i].signal->device->name)==0)
-                return;
-        }
     }
     foreach (Tab *tab, data->mapCallbacks)
         tab->mapEvent(map, action);

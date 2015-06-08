@@ -28,7 +28,7 @@ public:
     void addSignalCallback(Tab *tab);
     void addMapCallback(Tab *tab);
     void getSignalUpdates(Tab *tab, const QString& signame);
-    void cancelSignalUpdates(Tab *tab, const QString& signame);
+    void cancelSignalUpdates(Tab *tab, const QString& signame = 0);
 
 //protected:
     QList <Tab *> deviceCallbacks;
@@ -39,6 +39,7 @@ public:
     int signalFlags;
     int mapFlags;
     bool ready;
+    double now;
 };
 
 #endif // MAPPERSTUFF
