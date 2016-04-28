@@ -96,7 +96,7 @@
        </widget>
       </item>
       <item>
-       <widget class="SignalSearchBar" name="widget" native="true"/>
+       <widget class="SignalSearchBar" name="searchBar" native="true"/>
       </item>
      </layout>
     </widget>

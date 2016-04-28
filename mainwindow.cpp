@@ -3,7 +3,8 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    MapperWidget(parent, 0)
 {
     ui->setupUi(this);
 //    ui->tabs->layout()->setContentsMargins(0, 0, 0, 0);
@@ -11,17 +12,13 @@ MainWindow::MainWindow(QWidget *parent) :
 //    ui->tabs->layout()->setContentsMargins(0, 0, 0, 0);
 //    setCentralWidget(ui->tabs);
 
-    data = new MapperStuff();
+//    data = new MapperStuff();
 
     // try adding a new ListTab
-    ListTab *listTab = new ListTab(ui->tabs, data);
+    ListTab *listTab = new ListTab(ui->tabs, mapper_data);
     tabs << listTab;
     ui->tabs->addTab(listTab, "List");
 
-//    // try adding a new GraphTab
-//    GraphTab *graphTab = new GraphTab(ui->tabs, data);
-//    tabs << graphTab;
-//    ui->tabs->addTab(graphTab, "Overview");
     ui->tabs->setCurrentIndex(0);
 
     QTimer *timer = new QTimer(this);
@@ -34,15 +31,14 @@ MainWindow::~MainWindow()
     // TODO: save mapping(s)
     // close all tabs
     delete ui;
-    delete data;
 }
 
 void MainWindow::poll()
 {
-    int count = data->poll();
-    if (data->ready == false && data->device.ready()) {
-        data->ready = true;
-        setWindowTitle(QString::fromStdString(data->device.name()));
+    int count = mapper_data->poll();
+    if (mapper_data->ready == false) {
+        mapper_data->ready = true;
+        setWindowTitle("mapperGUI-qt");
     }
 //    if (count) {
 //        // drawing updates depend on current mode...
@@ -64,9 +60,29 @@ void MainWindow::poll()
 //    }
 
     // TODO: don't update unless tab is selected
-    data->now = data->device.now();
-    foreach (Tab *tab, tabs)
+//    data->now = data->device.now();
+    for (auto tab : tabs)
         tab->update();
+}
+
+void MainWindow::update()
+{
+    ;
+}
+
+void MainWindow::deviceEvent(const mapper::Device& dev, mapper_record_action action)
+{
+    ;
+}
+
+void MainWindow::signalEvent(const mapper::Signal& sig, mapper_record_action action)
+{
+    ;
+}
+
+void MainWindow::mapEvent(const mapper::Map& map, mapper_record_action action)
+{
+    ;
 }
 
 //void MainWindow::on_views_tabBarClicked(int index)

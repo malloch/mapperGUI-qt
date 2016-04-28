@@ -19,26 +19,37 @@ public:
     void resize();
     void update();
 
-    void addDevice(int index, const QString & name, int direction);
-    void removeDevice(const QString & name);
+    void addDevice(qulonglong id, const QString & name, int num_outputs,
+                   int num_inputs);
+    void removeDevice(qulonglong id);
 
-    void addSignal(const QString &devname, const QString &signame,
-                   QChar type, qreal length, int direction);
-    void removeSignal(const QString &devname, const QString &signame);
-    QPointF signalPosition(const QString &devname, const QString &signame);
+    void addSignal(qulonglong dev_id, qulonglong sig_id, const QString &signame,
+                   QChar type, qreal length, bool is_output);
+    void removeSignal(qulonglong id);
+    QPointF signalPosition(qulonglong id);
 
-    void addMap(uint32_t hash,
-                const QString &srcdevname, const QString &srcsigname,
-                const QString &dstdevname, const QString &dstsigname, bool muted);
-    void removeMap(uint32_t hash);
+    void addMap(qulonglong id,
+                QList<qulonglong> srcs, qulonglong dst, bool muted);
+    void removeMap(qulonglong id);
 
-signals:
+public Q_SLOTS:
+    void selectedSigs(QList<qulonglong> ids, QList<QPointF> positions, bool is_src);
+    void dropped(qulonglong id);
+
+Q_SIGNALS:
     void updateMaps();
-    void selectedMaps(QList<uint32_t> hashes);
-    void selectedSigs(bool is_src, QList<QString> signames);
+    void selectedMaps(QList<qulonglong> ids);
+    void releaseSelectedMaps();
+    void toggleSelectedMapsMuting();
+    void dragAndDrop(QList<qulonglong> srcs, qulonglong dst);
+
+protected:
+    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 
 private:
     Ui::ListView *ui;
+    QList<qulonglong> selectedIds;
+    QList<QPointF> selected;
 };
 
 #endif // LISTVIEW_H

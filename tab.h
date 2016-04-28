@@ -1,30 +1,26 @@
 #ifndef TAB_H
 #define TAB_H
 
-#include <mapper/mapper_cpp.h>
 #include <QTabWidget>
+#include "mapperwidget.h"
 
 namespace Ui {
 class Tab;
 }
 
-class MapperStuff;
-class Tab : public QWidget
+class Tab : public QWidget, public MapperWidget
 {
 public:
-    explicit Tab(QTabWidget *_parent, MapperStuff *data);
+    explicit Tab(QTabWidget *parent, MapperStuff *mapper_stuff);
     ~Tab();
 
-    virtual void update() = 0;
-    virtual void deviceEvent(mapper_db_device dev, mapper_db_action_t action) = 0;
-    virtual void signalEvent(mapper_db_signal sig, mapper_db_action_t action) = 0;
-    virtual void mapEvent(mapper_db_map map, mapper_db_action_t action) = 0;
-    virtual void signalUpdateEvent(mapper_signal sig, mapper_db_signal props,
-                                   int instance_id, void *value, int count,
-                                   mapper_timetag_t *timetag) = 0;
-
-protected:
-    MapperStuff *data;
+//    void update() = 0;
+    void deviceEvent(const mapper::Device& dev, mapper_record_action action);
+    void signalEvent(const mapper::Signal& sig, mapper_record_action action);
+    void mapEvent(const mapper::Map& map, mapper_record_action action);
+    void signalUpdateEvent(const mapper::Signal& sig, mapper_id instance,
+                           const void *value, int count,
+                           mapper_timetag_t *timetag);
 
 private:
     Ui::Tab *ui;

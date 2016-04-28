@@ -30,7 +30,7 @@
     <widget class="SignalList" name="source" native="true"/>
    </item>
    <item>
-    <widget class="LinkView" name="links" native="true"/>
+    <widget class="BipartiteMapView" name="maps" native="true"/>
    </item>
    <item>
     <widget class="SignalList" name="destination" native="true"/>
@@ -45,9 +45,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>LinkView</class>
+   <class>BipartiteMapView</class>
    <extends>QWidget</extends>
-   <header>linkview.h</header>
+   <header>bipartitemapview.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

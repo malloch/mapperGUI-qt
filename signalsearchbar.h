@@ -15,6 +15,13 @@ public:
     explicit SignalSearchBar(QWidget *parent = 0);
     ~SignalSearchBar();
 
+    void addDevice(qulonglong id, const QString& name);
+    void removeDevice(qulonglong id);
+
+Q_SIGNALS:
+    void patternChanged(const QString& text);
+    void prefixChanged(const QString& text);
+
 private:
     Ui::SignalSearchBar *ui;
 };

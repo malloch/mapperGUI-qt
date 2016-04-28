@@ -1,7 +1,6 @@
 #ifndef LISTTAB_H
 #define LISTTAB_H
 
-#include "mapperstuff.h"
 #include "tab.h"
 
 namespace Ui {
@@ -13,29 +12,37 @@ class ListTab : public Tab
     Q_OBJECT
 
 public:
-    explicit ListTab(QTabWidget *parent = 0, MapperStuff *data = 0);
+    explicit ListTab(QTabWidget *parent = 0, MapperStuff *_data = 0);
     ~ListTab();
 
     void update();
-    void deviceEvent(mapper_db_device dev, mapper_db_action_t action);
-    void signalEvent(mapper_db_signal sig, mapper_db_action_t action);
-    void mapEvent(mapper_db_map map, mapper_db_action_t action);
-    void signalUpdateEvent(mapper_signal sig, mapper_db_signal props,
-                           int instance_id, void *value, int count,
-                           mapper_timetag_t *timetag);
+    void deviceEvent(const mapper::Device& dev, mapper_record_action action) Q_DECL_OVERRIDE;
+    void signalEvent(const mapper::Signal& sig, mapper_record_action action) Q_DECL_OVERRIDE;
+    void mapEvent(const mapper::Map& map, mapper_record_action action) Q_DECL_OVERRIDE;
+    void signalUpdateEvent(const mapper::Signal& sig, mapper_id instance,
+                           const void *value, int count,
+                           mapper_timetag_t *timetag) Q_DECL_OVERRIDE;
 
 protected:
     void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
 
-public slots:
+public Q_SLOTS:
     void updateMaps();
-    void selectedMaps(QList<uint32_t> hashes);
-    void selectedSigs(bool is_src, QList<QString> signames);
+    void setSelectedMaps(QList<qulonglong> ids);
+    void releaseSelectedMaps();
+    void toggleSelectedMapsMuting();
+    void selectedSigs(QList<qulonglong> ids, QList<QPointF> positions, bool is_src);
+    void setModeLinear();
+    void setModeExpression();
+    void expressionChanged();
 
 private:
     Ui::ListTab *ui;
-    QList<QString> selectedSrcSigs;
-    QList<QString> selectedDstSigs;
+    QList<qulonglong> selectedSrcSigIds;
+    QList<QPointF> selectedSrcSigPositions;
+    QList<qulonglong> selectedDstSigIds;
+    QList<QPointF> selectedDstSigPositions;
+    QList<qulonglong> selectedMaps;
 };
 
 #endif // LISTTAB_H

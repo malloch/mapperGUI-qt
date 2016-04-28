@@ -1,19 +1,36 @@
 #include "listview.h"
 #include "ui_listview.h"
+#include <QDebug>
 
 ListView::ListView(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ListView)
 {
     ui->setupUi(this);
-    connect(ui->source, SIGNAL(updateMaps()), this, SIGNAL(updateMaps()));
-    connect(ui->destination, SIGNAL(updateMaps()), this, SIGNAL(updateMaps()));
-    connect(ui->links, SIGNAL(selectedMaps(QList<uint32_t>)),
-            this, SIGNAL(selectedMaps(QList<uint32_t>)));
-    connect(ui->source, SIGNAL(selectedSigs(bool, QList<QString>)),
-            this, SIGNAL(selectedSigs(bool, QList<QString>)));
-    connect(ui->destination, SIGNAL(selectedSigs(bool, QList<QString>)),
-            this, SIGNAL(selectedSigs(bool, QList<QString>)));
+    ui->source->setRole(true);
+    ui->destination->setRole(false);
+
+    connect(ui->source, SIGNAL(updated()), this, SIGNAL(updateMaps()));
+    connect(ui->destination, SIGNAL(updated()), this, SIGNAL(updateMaps()));
+
+    connect(ui->maps, SIGNAL(selectedMaps(QList<qulonglong>)),
+            this, SIGNAL(selectedMaps(QList<qulonglong>)));
+    connect(ui->maps, SIGNAL(releaseSelectedMaps()),
+            this, SIGNAL(releaseSelectedMaps()));
+    connect(ui->maps, SIGNAL(toggleSelectedMapsMuting()),
+            this, SIGNAL(toggleSelectedMapsMuting()));
+
+    //    connect(ui->source, SIGNAL(selectedSigs(QList<qulonglong>, QList<QPointF>)),
+    //            this, SIGNAL(selectedSigs(QList<qulonglong>, QList<QPointF>)));
+    //    connect(ui->destination, SIGNAL(selectedSigs(QList<qulonglong>, QList<QPointF>)),
+    //            this, SIGNAL(selectedSigs(QList<qulonglong>, QList<QPointF>)));
+    connect(ui->source, SIGNAL(selectedSigs(QList<qulonglong>, QList<QPointF>, bool)),
+            this, SLOT(selectedSigs(QList<qulonglong>, QList<QPointF>, bool)));
+    connect(ui->destination, SIGNAL(selectedSigs(QList<qulonglong>, QList<QPointF>, bool)),
+            this, SLOT(selectedSigs(QList<qulonglong>, QList<QPointF>, bool)));
+
+    connect(ui->source, SIGNAL(dropped(qulonglong)), this, SLOT(dropped(qulonglong)));
+    connect(ui->destination, SIGNAL(dropped(qulonglong)), this, SLOT(dropped(qulonglong)));
 }
 
 ListView::~ListView()
@@ -25,79 +42,115 @@ void ListView::clear()
 {
     ui->source->clear();
     ui->destination->clear();
-    // clear link display
-    // clear connection props display
+    // clear map display
+    // clear map props display
 }
 
-void ListView::addDevice(int index, const QString & name, int direction)
+void ListView::addDevice(qulonglong id, const QString & name,
+                         int num_outputs, int num_inputs)
 {
-    if (direction & DI_OUTGOING)
-        ui->source->addDevice(index, name);
+    printf("listView::addDevice '%s'\n", name.toStdString().c_str());
+    if (num_outputs)
+        ui->source->addDevice(id, name);
     else
-        ui->source->removeDevice(name);
+        ui->source->removeDevice(id);
 
-    if (direction & DI_INCOMING)
-        ui->destination->addDevice(index, name);
+    if (num_inputs)
+        ui->destination->addDevice(id, name);
     else
-        ui->destination->removeDevice(name);
+        ui->destination->removeDevice(id);
 }
 
-void ListView::removeDevice(const QString & name)
+void ListView::removeDevice(qulonglong id)
 {
-    ui->source->removeDevice(name);
-    ui->destination->removeDevice(name);
+    ui->source->removeDevice(id);
+    ui->destination->removeDevice(id);
 }
 
-void ListView::addSignal(const QString &devname, const QString &signame,
-                         QChar type, qreal length, int direction)
+void ListView::addSignal(qulonglong dev_id, qulonglong sig_id,
+                         const QString &signame, QChar type, qreal length,
+                         bool is_output)
 {
-    if (direction & DI_OUTGOING)
-        ui->source->addSignal(devname, signame, type, length);
-    else
-        ui->source->removeSignal(devname, signame);
+    qDebug() << "listView::addSignal" << signame << is_output;
+    if (is_output) {
+        ui->source->addSignal(dev_id, sig_id, signame, type, length);
+        ui->destination->removeSignal(sig_id);
 
-    if (direction & DI_INCOMING)
-        ui->destination->addSignal(devname, signame, type, length);
-    else
-        ui->destination->removeSignal(devname, signame);
+    }
+    else {
+        ui->destination->addSignal(dev_id, sig_id, signame, type, length);
+        ui->source->removeSignal(sig_id);
+    }
 }
 
-void ListView::removeSignal(const QString &devname, const QString &signame)
+void ListView::removeSignal(qulonglong id)
 {
-    ui->source->removeSignal(devname, signame);
-    ui->destination->removeSignal(devname, signame);
+    ui->source->removeSignal(id);
+    ui->destination->removeSignal(id);
 }
 
-QPointF ListView::signalPosition(const QString &devname, const QString &signame)
+QPointF ListView::signalPosition(qulonglong id)
 {
-    QPointF p = ui->source->signalPosition(devname, signame);
+    QPointF p = ui->source->signalPosition(id);
     if (!p.isNull())
         return p;
-    return ui->destination->signalPosition(devname, signame);
+    return ui->destination->signalPosition(id);
 }
 
-void ListView::addMap(uint32_t hash,
-                      const QString &srcdevname, const QString &srcsigname,
-                      const QString &dstdevname, const QString &dstsigname,
+void ListView::addMap(qulonglong id, QList<qulonglong> srcs, qulonglong dst,
                       bool muted)
 {
-    QPointF srcpos = signalPosition(srcdevname, srcsigname);
-    QPointF dstpos = signalPosition(dstdevname, dstsigname);
-    ui->links->addLink(hash, srcpos, dstpos, muted);
+    QList<QPointF> srcpos;
+    QPointF p;
+    int tempi = 0;
+    for (auto const& src : srcs) {
+        p = signalPosition(src);
+        if (p.isNull())
+            return;
+        srcpos << p;
+    }
+    QPointF dstpos = signalPosition(dst);
+    if (dstpos.isNull())
+        return;
+    ui->maps->addMap(id, srcpos, dstpos, muted);
 }
 
-void ListView::removeMap(uint32_t hash)
+void ListView::removeMap(qulonglong id)
 {
-    ui->links->removeLink(hash);
+    ui->maps->removeMap(id);
 }
 
 void ListView::resize()
 {
-    ui->links->resize();
+    ui->maps->resize();
 }
 
 void ListView::update()
 {
-    ui->links->update();
+    ui->maps->update();
 }
+
+void ListView::selectedSigs(QList<qulonglong> ids, QList<QPointF> locations,
+                            bool is_src)
+{
+    selected = locations;
+    selectedIds = ids;
+}
+
+void ListView::mouseMoveEvent(QMouseEvent *event)
+{
+    // get selections from signallists
+    if (selected.length() == 0)
+        return;
+    ui->maps->drawDrag(selected, event->pos());
+}
+
+void ListView::dropped(qulonglong id)
+{
+    printf("dropped! should be connecting %llu -> %llu\n", selectedIds[0], id);
+    if (selectedIds.length() == 0)
+        return;
+    Q_EMIT dragAndDrop(selectedIds, id);
+}
+
 

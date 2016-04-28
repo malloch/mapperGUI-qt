@@ -47,7 +47,7 @@
         <verstretch>5</verstretch>
        </sizepolicy>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="1">
        <property name="leftMargin">
         <number>0</number>
        </property>
@@ -61,10 +61,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="ConnectionProps" name="connectionProps" native="true"/>
-       </item>
-       <item>
-        <widget class="SignalPlotter" name="liveSignal" native="true"/>
+        <widget class="MapProps" name="mapProps" native="true"/>
        </item>
       </layout>
      </widget>
@@ -82,21 +79,15 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ConnectionProps</class>
-   <extends>QWidget</extends>
-   <header location="global">connectionprops.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>ListView</class>
    <extends>QWidget</extends>
    <header>listview.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>SignalPlotter</class>
+   <class>MapProps</class>
    <extends>QWidget</extends>
-   <header>signalplotter.h</header>
+   <header>mapprops.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

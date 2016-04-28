@@ -4,184 +4,224 @@
 #include <QSplitter>
 #include <QDebug>
 
-ListTab::ListTab(QTabWidget *parent, MapperStuff *_data) :
-    Tab(parent, _data),
+ListTab::ListTab(QTabWidget *parent, MapperStuff *_mapper_data) :
+    Tab(parent, _mapper_data),
     ui(new Ui::ListTab)
 {
     ui->setupUi(this);
-    data->addDeviceCallback(this);
-    data->addSignalCallback(this);
-    data->addMapCallback(this);
+    addDeviceCallback();
+    addSignalCallback();
+    addMapCallback();
 
     // add current devices and signals
-    for (auto const &signal : data->db.inputs()) {
-        signalEvent(signal, MDB_NEW);
-    }
-    for (auto const &signal : data->db.outputs()) {
-        signalEvent(signal, MDB_NEW);
+    for (auto const &signal : mapper_data->db.signals()) {
+        signalEvent(signal, MAPPER_ADDED);
     }
 
     connect(ui->listview, SIGNAL(updateMaps()), this, SLOT(updateMaps()));
-    connect(ui->listview, SIGNAL(selectedMaps(QList<uint32_t>)),
-            this, SLOT(selectedMaps(QList<uint32_t>)));
-    connect(ui->listview, SIGNAL(selectedSigs(bool, QList<QString>)),
-            this, SLOT(selectedSigs(bool, QList<QString>)));
+    connect(ui->listview, SIGNAL(selectedMaps(QList<qulonglong>)),
+            this, SLOT(setSelectedMaps(QList<qulonglong>)));
+    connect(ui->listview, SIGNAL(releaseSelectedMaps()),
+            this, SLOT(releaseSelectedMaps()));
+    connect(ui->listview, SIGNAL(toggleSelectedMapsMuting()),
+            this, SLOT(toggleSelectedMapsMuting()));
+//    connect(ui->listview, SIGNAL(selectedSigs(QList<qulonglong>, QList<QPointF>, bool)),
+//            this, SLOT(selectedSigs(QList<qulonglong>, QList<QPointF>, bool)));
 }
 
 ListTab::~ListTab()
 {
-    // disconnect any mapped signals
-    ui->liveSignal->removePlot();
     delete ui;
 }
 
-void ListTab::deviceEvent(mapper_db_device dev, mapper_db_action_t action)
+void ListTab::deviceEvent(const mapper::Device& dev, mapper_record_action action)
 {
-    int direction = (  (dev->num_inputs ? DI_INCOMING : 0)
-                     | (dev->num_outputs ? DI_OUTGOING : 0));
+    int direction = (  (dev.num_signals(MAPPER_DIR_INCOMING) ? MAPPER_DIR_INCOMING : 0)
+                     | (dev.num_signals(MAPPER_DIR_OUTGOING) ? MAPPER_DIR_OUTGOING : 0));
 
     switch (action) {
-    case MDB_NEW:
-        ui->listview->addDevice(0, QString::fromStdString(dev->name), direction);
+    case MAPPER_ADDED:
+        ui->listview->addDevice(dev.id(), QString::fromStdString(dev.name()),
+                                dev.num_signals(MAPPER_DIR_OUTGOING),
+                                dev.num_signals(MAPPER_DIR_INCOMING));
         break;
-    case MDB_REMOVE:
-        ui->listview->removeDevice(QString::fromStdString(dev->name));
+    case MAPPER_REMOVED:
+        ui->listview->removeDevice(dev.id());
         break;
     default:
         break;
     }
 }
 
-void ListTab::signalEvent(mapper_db_signal sig, mapper_db_action_t action)
+void ListTab::signalEvent(const mapper::Signal& sig, mapper_record_action action)
 {
     switch (action) {
-    case MDB_NEW:
-    case MDB_MODIFY:
-        ui->listview->addSignal(QString::fromStdString(sig->device->name),
-                                QString::fromStdString(sig->name),
-                                QChar(sig->type), sig->length, sig->direction);
+    case MAPPER_ADDED:
+    case MAPPER_MODIFIED:
+        // may need to add device as well
+        deviceEvent(sig.device(), action);
+        ui->listview->addSignal(sig.device().id(), sig.id(),
+                                QString::fromStdString(sig.name()),
+                                QChar(sig.type()), sig.length(),
+                                sig.direction() == MAPPER_DIR_OUTGOING);
         // redraw maps
-        for (auto const &map : data->db.maps()) {
-            mapEvent(map, MDB_NEW);
+        // TODO: mark maps as dirty and update at end of poll() instead
+        for (auto const& map : mapper_data->db.maps()) {
+            mapEvent(map, MAPPER_ADDED);
         }
         break;
-    case MDB_REMOVE:
-        ui->listview->removeSignal(QString::fromStdString(sig->device->name),
-                                   QString::fromStdString(sig->name));
+    case MAPPER_REMOVED:
+        ui->listview->removeSignal(sig.id());
         break;
     default:
         break;
     }
 }
 
-void ListTab::mapEvent(mapper_db_map map, mapper_db_action_t action)
+void ListTab::mapEvent(const mapper::Map& map, mapper_record_action action)
 {
     switch (action) {
-    case MDB_NEW: {
-        mapper_db_signal src, dst = map->destination.signal;
-        for (int i = 0; i < map->num_sources; i++) {
-            src = map->sources[i].signal;
-            ui->listview->addMap(map->hash,
-                                 QString::fromStdString(src->device->name),
-                                 QString::fromStdString(src->name),
-                                 QString::fromStdString(dst->device->name),
-                                 QString::fromStdString(dst->name),
-                                 map->muted);
-        }}
+    case MAPPER_ADDED:
+    case MAPPER_MODIFIED: {
+        QList<qulonglong> srcs;
+        mapper::Signal dst = map.destination().signal();
+        for (int i = 0; i < map.num_sources(); i++) {
+            srcs << map.source(i).signal();
+        }
+        ui->listview->addMap(map.id(), srcs, dst, map.muted());
+        }
         break;
-    case MDB_MODIFY:
-        break;
-    case MDB_REMOVE:
-        ui->listview->removeMap(map->hash);
+    case MAPPER_REMOVED:
+        ui->listview->removeMap(map.id());
         break;
     default:
         break;
     }
 }
 
-void ListTab::signalUpdateEvent(mapper_signal sig, mapper_db_signal props,
-                                int instance_id, void *value, int count,
+void ListTab::signalUpdateEvent(const mapper::Signal &sig, mapper_id instance,
+                                const void *value, int count,
                                 mapper_timetag_t *timetag)
 {
 //    qDebug() << "signalUpdateEvent" << props->name;
-    QString qname = QString::fromStdString(props->name);
-    ui->liveSignal->updatePlot(qname, *(double*)value,
-                               mapper_timetag_get_double(*timetag));
 }
 
 void ListTab::updateMaps()
 {
-    for (auto const &map : data->db.maps()) {
-        mapEvent(map, MDB_NEW);
+    for (auto const &map : mapper_data->db.maps()) {
+        mapEvent(map, MAPPER_ADDED);
     }
 }
 
-void ListTab::selectedMaps(QList<uint32_t> hashes)
+void ListTab::setSelectedMaps(QList<qulonglong> ids)
 {
-    if (hashes.isEmpty()) {
-        ui->connectionProps->clearProps();
+    if (ids.isEmpty()) {
+        ui->mapProps->clearProps();
 //        ui->listview->clearSelection;
         return;
     }
-    qDebug() << "selected maps:" << hashes;
-    if (hashes.count() != 1) {
+    qDebug() << "selected maps:" << ids;
+    if (ids.count() != 1) {
         qDebug() << "Only handling single map selections for now.";
         return;
     }
-    mapper::Db::Map map = data->db.map(hashes.at(0));
+    mapper::Map map = mapper_data->db.map(ids.at(0));
     if (!map) {
         qDebug() << "Couldn't find map in database.";
         return;
     }
-    qDebug() << "muted: " << (int)map.get("muted");
-    ui->connectionProps->displayProps(map.mode(), map.get("muted"), map.get("calibrating"),
-                                      QString::fromStdString(map.expression()));
+    qDebug() << "muted: " << map.muted();
+    qDebug() << "mode: " << map.mode();
+    ui->mapProps->displayProps(map.mode(), map.muted(),
+                               QString::fromStdString(map.expression()));
+    selectedMaps = ids;
 }
 
-void ListTab::selectedSigs(bool is_src, QList<QString> signames)
+void ListTab::releaseSelectedMaps()
 {
-    qDebug() << "ListTab::selectedSigs" << is_src << signames;
-    QList<QString> *listptr = is_src ? &selectedSrcSigs : &selectedDstSigs;
-    QList<QString> diff;
-    foreach(const QString &name, *listptr) {
-        if (!signames.contains(name)) {
-            diff << name;
+    printf("ListTab::releaseSelectedMaps()\n");
+    for (auto id : selectedMaps) {
+        mapper::Map map = mapper_data->db.map(id);
+        if (map)
+            map.release();
+    }
+}
+
+void ListTab::toggleSelectedMapsMuting()
+{
+    int muting = -1;
+    for (auto id : selectedMaps) {
+        mapper::Map map = mapper_data->db.map(id);
+        if (!map)
+            continue;
+        if (map.muted()) {
+            if (muting == -1)
+                muting = 0;
+            else if (muting = 1)
+                muting = 2;
+            map.set_muted(false);
+        }
+        else {
+            if (muting = -1)
+                muting = 1;
+            else if (muting = 0)
+                muting = 2;
+            map.set_muted(true);
+        }
+        map.push();
+    }
+    ui->mapProps->setMuting(muting);
+}
+
+void ListTab::setModeLinear()
+{
+
+}
+
+void ListTab::setModeExpression()
+{
+
+}
+
+void ListTab::expressionChanged()
+{
+
+}
+
+void ListTab::selectedSigs(QList<qulonglong> ids, QList<QPointF> positions,
+                           bool is_src)
+{
+    return;
+
+    QList<qulonglong> *listptr = is_src ? &selectedSrcSigIds : &selectedDstSigIds;
+    QList<qulonglong> diff;
+    for (auto const& id : *listptr) {
+        if (!ids.contains(id)) {
+            diff << id;
         }
     }
-    foreach(const QString &name, diff) {
-        // unmap signal
-        data->cancelSignalUpdates(this, name);
-
-        // remove plot
-        ui->liveSignal->removePlot(name);
-
+    for (auto const& id : diff) {
         // remove item from list
-        (*listptr).removeAll(name);
+        (*listptr).removeAll(id);
     }
     diff.clear();
-    foreach(const QString &name, signames) {
-        if (!(*listptr).contains(name)) {
-            qDebug() << "should be adding sig" << name;
-            diff << name;
+    for (auto const& id : ids) {
+        if (!(*listptr).contains(id)) {
+            diff << id;
         }
     }
-    foreach(const QString &name, diff) {
-        // map signal
-        qDebug() << "subscribing to" << name;
-        data->getSignalUpdates(this, name);
+//    for (auto const& id : diff) {
+//        // map signal
+//        mapper_data->getSignalUpdates(this, id);
 
-        // add plot
-        ui->liveSignal->addPlot(name);
-
-        // add to list
-        *listptr << name;
-    }
+//        // add to list
+//        *listptr << id;
+//    }
 }
 
 void ListTab::update()
 {
 //    ui->listview->update();
-    ui->liveSignal->update(data->now);
 }
 
 void ListTab::resizeEvent(QResizeEvent *event)

@@ -4,31 +4,33 @@
 #include <QDebug>
 #include <QAbstractItemView>
 
-SignalList::SignalList(QWidget *parent, const char *_label, int _is_src) :
+SignalList::SignalList(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SignalList)
 {
     ui->setupUi(this);
-    ui->label->setText(_label);
-    ui->tree->setColumnWidth(0, ui->widget->width()-120);
+    ui->tree->setColumnWidth(0, ui->searchBar->width()-120);
     ui->tree->setColumnWidth(1, 50);
     ui->tree->setColumnWidth(2, 50);
     ui->tree->setColumnHidden(3, true);
     ui->tree->setAlternatingRowColors(true);
-    is_src = _is_src;
 
 //    ui->tree->setSelectionMode(QAbstractItemView::MultiSelection);
 
     connect(ui->tree, SIGNAL(itemExpanded(QTreeWidgetItem*)),
-            this, SIGNAL(updateMaps()));
+            this, SIGNAL(updated()));
     connect(ui->tree, SIGNAL(itemCollapsed(QTreeWidgetItem*)),
-            this, SIGNAL(updateMaps()));
+            this, SIGNAL(updated()));
     connect(ui->tree, SIGNAL(itemSelectionChanged()), this, SLOT(selectionChanged()));
+    connect(ui->searchBar, SIGNAL(patternChanged(const QString&)),
+            this, SLOT(filterPatternChanged(const QString&)));
+    connect(ui->searchBar, SIGNAL(prefixChanged(const QString&)),
+            this, SLOT(filterPrefixChanged(const QString&)));
 
     // also trigger redraw when columns are sorted
     ui->tree->header()->setSectionsClickable(true);
     connect(ui->tree->header(), SIGNAL(sectionClicked(int)),
-            this, SIGNAL(updateMaps()));
+            this, SIGNAL(updated()));
 }
 
 SignalList::~SignalList()
@@ -41,106 +43,163 @@ void SignalList::clear()
     ui->tree->clear();
 }
 
-int SignalList::addDevice(int index, const QString &name)
+void SignalList::setRole(bool _is_src)
 {
-    QList<QTreeWidgetItem *> qdevlist = ui->tree->findItems(name, Qt::MatchExactly, 0);
-    if (qdevlist.count())
-        return -1;
+    is_src = _is_src;
+    ui->label->setText(is_src ? "Sources" : "Destinations");
+}
+
+int SignalList::addDevice(qulonglong id, const QString &name)
+{
+    for (int i = 0; i < ui->tree->topLevelItemCount(); i++) {
+        QTreeWidgetItem *dev = ui->tree->topLevelItem(i);
+        QVariant dev_id = dev->data(0, Qt::UserRole);
+        if (dev_id.toULongLong() == id)
+            return -1;
+    }
     QTreeWidgetItem *qdev = new QTreeWidgetItem((QTreeWidget*)0,
                                                 QStringList(name));
-    ui->tree->insertTopLevelItem(index, qdev);
+    qdev->setData(0, Qt::UserRole, QVariant(id));
+    ui->tree->addTopLevelItem(qdev);
     ui->tree->expandItem(qdev);
+    ui->searchBar->addDevice(id, name);
+    Q_EMIT updated();
     return ui->tree->indexOfTopLevelItem(qdev);
 }
 
-void SignalList::removeDevice(const QString &name)
+void SignalList::removeDevice(qulonglong id)
 {
-    QList<QTreeWidgetItem *> qdevlist = ui->tree->findItems(name, Qt::MatchExactly, 0);
-    int num = qdevlist.count();
-    for (int i = 0; i < num; i++)
-        delete(qdevlist.takeAt(0));
+    for (int i = 0; i < ui->tree->topLevelItemCount(); i++) {
+        QTreeWidgetItem *dev = ui->tree->topLevelItem(i);
+        QVariant dev_id = dev->data(0, Qt::UserRole);
+        if (dev_id.toULongLong() == id) {
+            delete(dev);
+            ui->searchBar->removeDevice(id);
+            Q_EMIT updated();
+            return;
+        }
+    }
 }
 
-void SignalList::addSignal(const QString &devname, const QString &signame, QChar type,
-                           qreal length)
+void SignalList::addSignal(qulonglong dev_id, qulonglong sig_id,
+                           const QString &signame, QChar type, qreal length)
 {
-    QTreeWidgetItem *qdev;
-    QList<QTreeWidgetItem *> qlist = ui->tree->findItems(devname, Qt::MatchExactly | Qt::MatchRecursive, 0);
-    if (!qlist.count()) {
-        qdev = new QTreeWidgetItem((QTreeWidget*)0, QStringList(devname));
-        ui->tree->insertTopLevelItem(0, qdev);
+    // find device
+    QTreeWidgetItem *dev;
+    int i;
+    for (i = 0; i < ui->tree->topLevelItemCount(); i++) {
+        dev = ui->tree->topLevelItem(i);
+        QVariant temp = dev->data(0, Qt::UserRole);
+        if (temp.toULongLong() == dev_id)
+            break;
     }
-    else
-        qdev = qlist.takeAt(0);
-
-    QString qkey;
-    qkey.append(devname);
-    qkey.append("/");
-    qkey.append(signame);
-
-    qlist = ui->tree->findItems(qkey, Qt::MatchExactly, 3);
-    if (qlist.count()) {
-        // entry already exists
-        // TODO: update metadata
+    if (i == ui->tree->topLevelItemCount()) {
+        // device not found
         return;
     }
 
-    QTreeWidgetItem *qsig = new QTreeWidgetItem();
-    qsig->setText(0, signame);
-    qsig->setText(1, QString(type));
-    qsig->setText(2, QString::number(length));
-    qsig->setText(3, qkey);
-    qdev->addChild(qsig);
+    // find signal
+    QTreeWidgetItem *sig;
+    for (i = 0; i < dev->childCount(); i++) {
+        sig = dev->child(i);
+        QVariant temp = sig->data(0, Qt::UserRole);
+        if (temp.toULongLong() == sig_id) {
+            // todo: overwrite metadata?
+            return;
+        }
+    }
+
+    sig = new QTreeWidgetItem();
+    sig->setText(0, signame);
+    sig->setText(1, QString(type));
+    sig->setText(2, QString::number(length));
+    sig->setData(0, Qt::UserRole, QVariant(sig_id));
+    dev->addChild(sig);
+    Q_EMIT updated();
 }
 
-void SignalList::removeSignal(const QString &devname, const QString &signame)
+void SignalList::removeSignal(qulonglong id)
 {
-    QString qkey;
-    qkey.append(devname);
-    qkey.append("/");
-    qkey.append(signame);
-
-    QList<QTreeWidgetItem *> qlist = ui->tree->findItems(qkey, Qt::MatchExactly | Qt::MatchRecursive, 3);
-    if (!qlist.count())
-        return;
-
-    int num = qlist.count();
-    for (int i = 0; i < num; i++)
-        delete(qlist.takeAt(0));
+    QTreeWidgetItem *dev, *sig;
+    int i, j;
+    for (i = 0; i < ui->tree->topLevelItemCount(); i++) {
+        dev = ui->tree->topLevelItem(i);
+        for (j = 0; j < dev->childCount(); j++) {
+            sig = dev->child(j);
+            if (sig->data(0, Qt::UserRole).toULongLong() == id) {
+                delete(sig);
+                Q_EMIT updated();
+                return;
+            }
+        }
+    }
 }
 
-QPointF SignalList::signalPosition(const QString &devname, const QString & signame)
+QPointF SignalList::signalPosition(qulonglong id)
 {
-    QString qkey;
-    qkey.append(devname);
-    qkey.append("/");
-    qkey.append(signame);
-
-    QList<QTreeWidgetItem *> qlist = ui->tree->findItems(qkey, Qt::MatchExactly | Qt::MatchRecursive, 3);
-    if (!qlist.count())
+    QTreeWidgetItem *dev, *sig;
+    int i, j, found = 0;
+    for (i = 0; i < ui->tree->topLevelItemCount(); i++) {
+        dev = ui->tree->topLevelItem(i);
+        for (j = 0; j < dev->childCount(); j++) {
+            sig = dev->child(j);
+            if (sig->data(0, Qt::UserRole).toULongLong() == id) {
+                found = 1;
+                break;
+            }
+        }
+        if (found)
+            break;
+    }
+    if (!found || dev->isHidden() || sig->isHidden())
         return QPointF(0, 0);
-
-    QTreeWidgetItem *item = qlist.first();
-    if (item->parent()->isExpanded()) {
-        QRect rect = ui->tree->visualItemRect(item);
+    if (dev->isExpanded()) {
+        QRect rect = ui->tree->visualItemRect(sig);
         return QPointF(is_src ? 0 : 1, rect.center().y());
     }
     else {
-        QRect rect = ui->tree->visualItemRect(item->parent());
+        QRect rect = ui->tree->visualItemRect(dev);
         return QPointF(is_src ? 0 : 1, rect.center().y());
     }
 }
 
 void SignalList::selectionChanged()
 {
-    qDebug() << "selectionChanged(), is_src:" << is_src << "selections" << ui->tree->selectedItems();
     QList<QTreeWidgetItem*> selected = ui->tree->selectedItems();
     // pass list of selected signal names to parent
-    QList<QString> names;
-    foreach(QTreeWidgetItem *item, selected) {
-        QString name = item->text(3);
-        if (name.length())
-            names << name;
+    QList<qulonglong> ids;
+    QList<QPointF> positions;
+    for (auto const& item : selected) {
+        if (item->childCount())
+            continue;
+        ids << item->data(0, Qt::UserRole).toULongLong();
+        positions << QPointF(is_src ? 0 : 1,
+                             ui->tree->visualItemRect(item).center().y());
     }
-    selectedSigs(is_src, names);
+    if (ids.length() != 0)
+        selectedSigs(ids, positions, is_src);
 }
+
+void SignalList::filterPatternChanged(const QString &pattern)
+{
+    printf("filterPatternChanged('%s')\n", pattern.toStdString().c_str());
+    QTreeWidgetItem *dev, *sig;
+    int i, j;
+    // build a regular expression
+    QRegExp regexp("("+pattern+")");
+    for (i = 0; i < ui->tree->topLevelItemCount(); i++) {
+        dev = ui->tree->topLevelItem(i);
+        for (j = 0; j < dev->childCount(); j++) {
+            sig = dev->child(j);
+            sig->setHidden(regexp.indexIn(sig->text(0)) == -1);
+        }
+    }
+    Q_EMIT updated();
+}
+
+void SignalList::filterPrefixChanged(const QString &prefix)
+{
+    ;
+}
+
+
