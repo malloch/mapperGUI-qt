@@ -30,7 +30,11 @@
     <widget class="SignalList" name="source" native="true"/>
    </item>
    <item>
-    <widget class="BipartiteMapView" name="maps" native="true"/>
+    <widget class="BipartiteMapView" name="maps" native="true">
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="SignalList" name="destination" native="true"/>
