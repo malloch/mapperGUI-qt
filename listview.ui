@@ -10,6 +10,9 @@
     <height>300</height>
    </rect>
   </property>
+  <property name="mouseTracking">
+   <bool>false</bool>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -31,6 +34,9 @@
    </item>
    <item>
     <widget class="BipartiteMapView" name="maps" native="true">
+     <property name="mouseTracking">
+      <bool>false</bool>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::ClickFocus</enum>
      </property>

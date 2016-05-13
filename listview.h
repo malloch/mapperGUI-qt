@@ -34,22 +34,31 @@ public:
 
 public Q_SLOTS:
     void selectedSigs(QList<qulonglong> ids, QList<QPointF> positions, bool is_src);
-    void dropped(qulonglong id);
+//    void dropped(qulonglong id);
+    void mapSelectedSigs();
+    void unmapSelectedSigs();
+    void dragSelectedSigs(QPointF pos, bool is_src);
+    void dropSelectedSigs(bool is_src);
 
 Q_SIGNALS:
     void updateMaps();
     void selectedMaps(QList<qulonglong> ids);
     void releaseSelectedMaps();
     void toggleSelectedMapsMuting();
-    void dragAndDrop(QList<qulonglong> srcs, qulonglong dst);
+//    void dragAndDrop(QList<qulonglong> srcs, qulonglong dst);
+    void mapSigs(QList<qulonglong> srcs, qulonglong dst);
+    void unmapSigs(QList<qulonglong> srcs, qulonglong dst);
 
 protected:
-    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+//    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    bool eventFilter(QObject *object, QEvent *event);
 
 private:
     Ui::ListView *ui;
-    QList<qulonglong> selectedIds;
-    QList<QPointF> selected;
+    QList<qulonglong> selectedSrcIds;
+    QList<qulonglong> selectedDstIds;
+    QList<QPointF> selectedSrcPos;
+    QList<QPointF> selectedDstPos;
 };
 
 #endif // LISTVIEW_H

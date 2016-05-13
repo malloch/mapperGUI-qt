@@ -25,6 +25,7 @@ public:
     void removeMap(qulonglong id);
     void resize();
     void drawDrag(QList<QPointF>, QPointF);
+    void selectAllMaps();
 
     class Edge : public QGraphicsItem
     {
@@ -59,6 +60,8 @@ Q_SIGNALS:
     void selectedMaps(QList<qulonglong> ids);
     void releaseSelectedMaps();
     void toggleSelectedMapsMuting();
+    void mapSelectedSigs();
+    void unmapSelectedSigs();
 
 private:
     Ui::BipartiteMapView *ui;
@@ -68,6 +71,7 @@ private:
     void clearSelected();
     void updateSelected(const QPointF &newPos);
     QList<qulonglong> selectedMapIds;
+    bool mouseButtonPressed;
 };
 
 #endif // BIPARTITEMAPVIEW_H

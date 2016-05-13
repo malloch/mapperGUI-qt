@@ -2,6 +2,7 @@
 #define SIGNALLIST_H
 
 #include <QWidget>
+#include <QMouseEvent>
 
 namespace Ui {
 class SignalList;
@@ -33,10 +34,17 @@ Q_SIGNALS:
     void updated();
     void selectedSigs(QList<qulonglong> ids, QList<QPointF> positions, bool is_src);
     void dropped(qulonglong id);
+    void selectDrag(QPointF pos, bool is_src);
+    void selectDrop(bool is_src);
+
+protected:
+    bool eventFilter(QObject *object, QEvent *event);
+//    void mousePressEvent(QMouseEvent *event);
 
 private:
     Ui::SignalList *ui;
-    int is_src;
+    bool is_src;
+    bool dragging;
 //    MapperStuff *data;
 };
 

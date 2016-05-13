@@ -31,6 +31,11 @@ SignalList::SignalList(QWidget *parent) :
     ui->tree->header()->setSectionsClickable(true);
     connect(ui->tree->header(), SIGNAL(sectionClicked(int)),
             this, SIGNAL(updated()));
+
+    dragging = false;
+
+//    this->installEventFilter(this);
+    ui->tree->viewport()->installEventFilter(this);
 }
 
 SignalList::~SignalList()
@@ -94,7 +99,6 @@ void SignalList::addSignal(qulonglong dev_id, qulonglong sig_id,
             break;
     }
     if (i == ui->tree->topLevelItemCount()) {
-        // device not found
         return;
     }
 
@@ -202,4 +206,56 @@ void SignalList::filterPrefixChanged(const QString &prefix)
     ;
 }
 
-
+bool SignalList::eventFilter(QObject *object, QEvent *event)
+{
+    QMouseEvent *cast = dynamic_cast<QMouseEvent*>(event);
+    switch (event->type()) {
+    case QEvent::MouseButtonPress: {
+        QTreeWidgetItem* item = ui->tree->itemAt(cast->x(), cast->y());
+        if (item) {
+            if (!item->isSelected() && !(cast->modifiers() & Qt::ShiftModifier))
+                ui->tree->clearSelection();
+            item->setSelected(true);
+        }
+        break;
+    }
+    case QEvent::MouseMove: {
+        if (ui->tree->selectedItems().isEmpty()) {
+            break;
+        }
+        QPoint pos(cast->pos());
+        if (is_src) {
+            if (pos.x() < ui->frame->width()) {
+                if (!dragging)
+                    break;
+                pos.setX(0);
+            }
+            else
+                pos.setX(pos.x() - ui->frame->width());
+        }
+        else {
+            if (pos.x() > 0) {
+                if (!dragging)
+                    break;
+                pos.setX(-1);
+            }
+//            else
+//                pos.setX(pos.x() * -1);
+        }
+        dragging = true;
+        Q_EMIT selectDrag(pos, is_src);
+        break;
+    }
+    case QEvent::MouseButtonRelease:
+        if (dragging)
+            Q_EMIT selectDrop(is_src);
+        dragging = false;
+        break;
+    case QEvent::MouseButtonDblClick:
+        break;
+    default:
+        return QObject::eventFilter(object, event);
+    }
+    event->setAccepted(true);
+    return true;
+}

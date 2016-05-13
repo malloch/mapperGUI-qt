@@ -20,6 +20,9 @@ ListView::ListView(QWidget *parent) :
     connect(ui->maps, SIGNAL(toggleSelectedMapsMuting()),
             this, SIGNAL(toggleSelectedMapsMuting()));
 
+    connect(ui->maps, SIGNAL(mapSelectedSigs()), this, SLOT(mapSelectedSigs()));
+    connect(ui->maps, SIGNAL(unmapSelectedSigs()), this, SLOT(unmapSelectedSigs()));
+
     //    connect(ui->source, SIGNAL(selectedSigs(QList<qulonglong>, QList<QPointF>)),
     //            this, SIGNAL(selectedSigs(QList<qulonglong>, QList<QPointF>)));
     //    connect(ui->destination, SIGNAL(selectedSigs(QList<qulonglong>, QList<QPointF>)),
@@ -28,9 +31,19 @@ ListView::ListView(QWidget *parent) :
             this, SLOT(selectedSigs(QList<qulonglong>, QList<QPointF>, bool)));
     connect(ui->destination, SIGNAL(selectedSigs(QList<qulonglong>, QList<QPointF>, bool)),
             this, SLOT(selectedSigs(QList<qulonglong>, QList<QPointF>, bool)));
+    connect(ui->source, SIGNAL(selectDrag(QPointF, bool)),
+            this, SLOT(dragSelectedSigs(QPointF, bool)));
+    connect(ui->source, SIGNAL(selectDrop(bool)),
+            this, SLOT(dropSelectedSigs(bool)));
+    connect(ui->destination, SIGNAL(selectDrag(QPointF, bool)),
+            this, SLOT(dragSelectedSigs(QPointF, bool)));
+    connect(ui->destination, SIGNAL(selectDrop(bool)),
+            this, SLOT(dropSelectedSigs(bool)));
 
-    connect(ui->source, SIGNAL(dropped(qulonglong)), this, SLOT(dropped(qulonglong)));
-    connect(ui->destination, SIGNAL(dropped(qulonglong)), this, SLOT(dropped(qulonglong)));
+//    connect(ui->source, SIGNAL(dropped(qulonglong)), this, SLOT(dropped(qulonglong)));
+//    connect(ui->destination, SIGNAL(dropped(qulonglong)), this, SLOT(dropped(qulonglong)));
+
+//    this->installEventFilter(this);
 }
 
 ListView::~ListView()
@@ -102,7 +115,7 @@ void ListView::addMap(qulonglong id, QList<qulonglong> srcs, qulonglong dst,
 {
     QList<QPointF> srcpos;
     QPointF p;
-    int tempi = 0;
+//    int tempi = 0;
     for (auto const& src : srcs) {
         p = signalPosition(src);
         if (p.isNull())
@@ -133,24 +146,83 @@ void ListView::update()
 void ListView::selectedSigs(QList<qulonglong> ids, QList<QPointF> locations,
                             bool is_src)
 {
-    selected = locations;
-    selectedIds = ids;
+    if (is_src) {
+        selectedSrcIds = ids;
+        selectedSrcPos = locations;
+    }
+    else {
+        selectedDstIds = ids;
+        selectedDstPos = locations;
+    }
 }
 
-void ListView::mouseMoveEvent(QMouseEvent *event)
+void ListView::dragSelectedSigs(QPointF pos, bool is_src)
 {
-    // get selections from signallists
-    if (selected.length() == 0)
-        return;
-    ui->maps->drawDrag(selected, event->pos());
+    qDebug() << "ListView::dragSelectedSigs" << pos << is_src;
+    if (is_src) {
+        ui->maps->drawDrag(selectedSrcPos, pos);
+    }
+    else
+        ui->maps->drawDrag(selectedDstPos, pos);
 }
 
-void ListView::dropped(qulonglong id)
+void ListView::dropSelectedSigs(bool is_src)
 {
-    printf("dropped! should be connecting %llu -> %llu\n", selectedIds[0], id);
-    if (selectedIds.length() == 0)
-        return;
-    Q_EMIT dragAndDrop(selectedIds, id);
+    qDebug() << "ListView::dropSelectedSigs" << is_src;
+    ui->maps->removeMap(0);
 }
 
+void ListView::mapSelectedSigs()
+{
+    if (!selectedSrcIds.isEmpty() && !selectedDstIds.isEmpty())
+        Q_EMIT mapSigs(selectedSrcIds, selectedDstIds[0]);
+}
+
+void ListView::unmapSelectedSigs()
+{
+    if (!selectedSrcIds.isEmpty() && !selectedDstIds.isEmpty())
+        Q_EMIT unmapSigs(selectedSrcIds, selectedDstIds[0]);
+}
+
+//void ListView::mouseMoveEvent(QMouseEvent *event)
+//{
+//    qDebug() << "ListView::mouseMoveEvent";
+//    // get selections from signallists
+////    if (selectedSrcIds.isEmpty())
+//        return;
+////    ui->maps->drawDrag(selected, event->pos());
+//}
+
+//void ListView::dropped(qulonglong id)
+//{
+//    printf("dropped! should be connecting %llu -> %llu\n", selectedIds[0], id);
+//    if (selectedIds.length() == 0)
+//        return;
+//    Q_EMIT dragAndDrop(selectedIds, id);
+//}
+
+bool ListView::eventFilter(QObject *object, QEvent *event)
+{
+//    qDebug() << "ListView::eventFilter";
+    switch (event->type()) {
+//    case QEvent::MouseButtonPress: {
+//        qDebug() << "QEvent::MouseButtonPress";
+//        break;
+//    }
+    case QEvent::MouseMove:
+//        qDebug() << "ListView::MouseMove";
+        break;
+    case QEvent::MouseButtonRelease:
+//        qDebug() << "ListView::MouseButtonRelease";
+        break;
+    case QEvent::KeyPress:
+//        qDebug() << "ListView::KeyPress";
+        break;
+
+    default:
+        return QObject::eventFilter(object, event);
+    }
+    event->setAccepted(true);
+    return true;
+}
 

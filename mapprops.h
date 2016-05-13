@@ -22,7 +22,8 @@ public:
     explicit MapProps(QWidget *parent);
     ~MapProps();
 
-    void displayProps(int mode, bool muted, const QString& expression);
+    void displayProps(QList<int> mode, QList<bool> muted,
+                      QList<QString> expression);
     void clearProps();
     void setMuting(int state);
 

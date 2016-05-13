@@ -25,6 +25,7 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
+//    bool eventFilter(QObject *object, QEvent *event);
 
 public Q_SLOTS:
     void updateMaps();
@@ -35,6 +36,8 @@ public Q_SLOTS:
     void setModeLinear();
     void setModeExpression();
     void expressionChanged();
+    void mapSigs(QList<qulonglong> srcs, qulonglong dst);
+    void unmapSigs(QList<qulonglong> srcs, qulonglong dst);
 
 private:
     Ui::ListTab *ui;

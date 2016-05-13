@@ -19,6 +19,8 @@ BipartiteMapView::BipartiteMapView(QWidget *parent) :
     ui->maps->setRenderHint(QPainter::HighQualityAntialiasing);
 
     ui->maps->scene()->installEventFilter(this);
+
+    mouseButtonPressed = false;
 }
 
 BipartiteMapView::~BipartiteMapView()
@@ -100,10 +102,28 @@ void BipartiteMapView::clearSelected()
             }
         }
     }
-    if (updated)
+    if (updated) {
         scene->update();
-    selectedMapIds.clear();
-    selectedMaps(selectedMapIds);
+        selectedMapIds.clear();
+        selectedMaps(selectedMapIds);
+    }
+}
+
+void BipartiteMapView::selectAllMaps()
+{
+    bool updated = false;
+    for (auto const& item : scene->items()) {
+        if (Edge *edge = qgraphicsitem_cast<Edge *>(item)) {
+            if (edge->id && !edge->selected) {
+                updated = edge->selected = true;
+                selectedMapIds << edge->id;
+            }
+        }
+    }
+    if (updated) {
+        scene->update();
+        selectedMaps(selectedMapIds);
+    }
 }
 
 void BipartiteMapView::updateSelected(const QPointF &newPos)
@@ -136,7 +156,7 @@ void BipartiteMapView::updateSelected(const QPointF &newPos)
 
     for (auto const& item : scene->items()) {
         if (Edge *edge = qgraphicsitem_cast<Edge *>(item)) {
-            if (edge->selected)
+            if (!edge->id || edge->selected)
                 continue;
             bool touched = true;
             for (auto const& src : edge->srcs) {
@@ -210,12 +230,14 @@ bool BipartiteMapView::eventFilter(QObject *object, QEvent *event)
             selectedMaps(selectedMapIds);
         }
         lastPos = cast->scenePos();
+        mouseButtonPressed = true;
         break;
     }
     case QEvent::GraphicsSceneMouseMove:
         if (!cast)
             break;
-        updateSelected(cast->scenePos());
+        if (mouseButtonPressed)
+            updateSelected(cast->scenePos());
         break;
     case QEvent::GraphicsSceneMouseRelease:
         if (!cast)
@@ -223,20 +245,27 @@ bool BipartiteMapView::eventFilter(QObject *object, QEvent *event)
         if (!selectedMapIds.isEmpty()) {
             ;
         }
-        break;
-    case QEvent::GraphicsSceneDragEnter:
-        printf("linkView dragEnter\n");
-        break;
-    case QEvent::DragMove:
-        printf("linkView dragMove\n");
+        mouseButtonPressed = false;
         break;
     case QEvent::KeyPress: {
         QKeyEvent* key = static_cast<QKeyEvent*>(event);
-        if (key->key() == Qt::Key_Backspace || key->key() == Qt::Key_Delete) {
+        switch (key->key()) {
+        case Qt::Key_Backspace:
+        case Qt::Key_Delete:
             releaseSelectedMaps();
-        }
-        else if (key->key() == Qt::Key_Space) {
+            break;
+        case Qt::Key_Space:
             toggleSelectedMapsMuting();
+            break;
+        case Qt::Key_M:
+            Q_EMIT mapSelectedSigs();
+            break;
+        case Qt::Key_U:
+            Q_EMIT unmapSelectedSigs();
+            break;
+        case Qt::Key_A:
+            if (key->modifiers() & (Qt::ControlModifier | Qt::MetaModifier))
+                selectAllMaps();
         }
         break;
     }
@@ -285,15 +314,15 @@ void BipartiteMapView::Edge::paint(QPainter *painter,
                       halfwidth, dst.y(),
                       dst.x(), dst.y());
     }
-
+    bool dir = dst.x() > halfwidth;
     painter->setPen(pen);
     painter->drawPath(*path);
 
     // Draw the arrow
     QPointF endPoint, arrowP1, arrowP2;
     endPoint = QPointF(dst.x(), dst.y());
-    arrowP1 = endPoint + QPointF(dst.x() ? -10 : 10, 4);
-    arrowP2 = endPoint + QPointF(dst.x() ? -10 : 10, -4);
+    arrowP1 = endPoint + QPointF(dir ? -10 : 10, 4);
+    arrowP2 = endPoint + QPointF(dir ? -10 : 10, -4);
 
     pen.setStyle(Qt::SolidLine);
     painter->setPen(pen);
@@ -301,7 +330,37 @@ void BipartiteMapView::Edge::paint(QPainter *painter,
     painter->drawPolygon(QPolygonF() << endPoint << arrowP1 << arrowP2);
 }
 
-void BipartiteMapView::drawDrag(QList<QPointF>, QPointF)
+void BipartiteMapView::drawDrag(QList<QPointF> start, QPointF end)
 {
+    // TODO: snap new map to list when appropriate
 
+    float width = this->rect().width() - 2;
+
+    // check if already dragging
+    Edge *drag = 0;
+    for (auto const& item : scene->items()) {
+        if (Edge *edge = qgraphicsitem_cast<Edge *>(item)) {
+            if (!edge->id) {
+                drag = edge;
+                break;
+            }
+        }
+    }
+    if (end.x() > width)
+        end.setX(width);
+    else if (end.x() < -width)
+        end.setX(0);
+    else if (end.x() < 0)
+        end.setX(width + end.x());
+
+    if (drag) {
+        drag->dst.setX(end.x());
+        drag->dst.setY(end.y());
+    }
+    else {
+        for (auto& src : start)
+            src.setX(src.x() * width);
+        scene->addItem(new Edge(0, start, end, false));
+    }
+    scene->update();
 }

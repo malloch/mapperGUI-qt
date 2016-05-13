@@ -27,6 +27,8 @@ ListTab::ListTab(QTabWidget *parent, MapperStuff *_mapper_data) :
             this, SLOT(toggleSelectedMapsMuting()));
 //    connect(ui->listview, SIGNAL(selectedSigs(QList<qulonglong>, QList<QPointF>, bool)),
 //            this, SLOT(selectedSigs(QList<qulonglong>, QList<QPointF>, bool)));
+
+//    ui->listview->installEventFilter(this);
 }
 
 ListTab::~ListTab()
@@ -121,19 +123,18 @@ void ListTab::setSelectedMaps(QList<qulonglong> ids)
         return;
     }
     qDebug() << "selected maps:" << ids;
-    if (ids.count() != 1) {
-        qDebug() << "Only handling single map selections for now.";
-        return;
+    QList<int> mode;
+    QList<bool> muted;
+    QList<QString> expr;
+    for (auto id : ids) {
+        mapper::Map map = mapper_data->db.map(id);
+        if (!map)
+            continue;
+        mode << map.mode();
+        muted << map.muted();
+        expr << QString::fromStdString(map.expression());
     }
-    mapper::Map map = mapper_data->db.map(ids.at(0));
-    if (!map) {
-        qDebug() << "Couldn't find map in database.";
-        return;
-    }
-    qDebug() << "muted: " << map.muted();
-    qDebug() << "mode: " << map.mode();
-    ui->mapProps->displayProps(map.mode(), map.muted(),
-                               QString::fromStdString(map.expression()));
+    ui->mapProps->displayProps(mode, muted, expr);
     selectedMaps = ids;
 }
 
@@ -219,6 +220,27 @@ void ListTab::selectedSigs(QList<qulonglong> ids, QList<QPointF> positions,
 //    }
 }
 
+void ListTab::mapSigs(QList<qulonglong> srcIds, qulonglong dstId)
+{
+    std::vector<mapper::Signal> srcSigs;
+    mapper::Signal dstSig = mapper_data->db.signal(dstId);
+    if (!dstSig)
+        return;
+    for (qulonglong id : srcIds) {
+        mapper::Signal tmp = mapper_data->db.signal(id);
+        if (!tmp)
+            return;
+        srcSigs.push_back(tmp);
+    }
+    mapper::Map map(srcSigs, dstSig);
+    map.push();
+}
+
+void ListTab::unmapSigs(QList<qulonglong> srcs, qulonglong dst)
+{
+
+}
+
 void ListTab::update()
 {
 //    ui->listview->update();
@@ -228,3 +250,26 @@ void ListTab::resizeEvent(QResizeEvent *event)
 {
     ui->listview->resize();
 }
+
+//bool ListTab::eventFilter(QObject *object, QEvent *event)
+//{
+//    switch (event->type()) {
+//    case QEvent::MouseButtonPress:
+//        qDebug() << "QEvent::MouseButtonPress";
+//        break;
+//    case QEvent::MouseMove:
+//        qDebug() << "QEvent::MouseMove";
+//        break;
+//    case QEvent::MouseButtonRelease:
+//        qDebug() << "MouseButtonRelease";
+//        break;
+//    case QEvent::Paint:
+//        return QObject::eventFilter(object, event);
+
+//    default:
+//        qDebug() << "other";
+//        return QObject::eventFilter(object, event);
+//    }
+//    event->setAccepted(true);
+//    return true;
+//}
