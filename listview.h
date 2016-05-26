@@ -38,7 +38,7 @@ public Q_SLOTS:
     void mapSelectedSigs();
     void unmapSelectedSigs();
     void dragSelectedSigs(QPointF pos, bool is_src);
-    void dropSelectedSigs(bool is_src);
+    void dropSelectedSigs(QPointF pos, bool is_src);
 
 Q_SIGNALS:
     void updateMaps();

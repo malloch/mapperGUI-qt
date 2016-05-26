@@ -24,6 +24,8 @@ public:
                    QChar type, qreal length);
     void removeSignal(qulonglong id);
     QPointF signalPosition(qulonglong id);
+    int snap(int y);
+    qulonglong itemAt(int y);
 
 public Q_SLOTS:
     void selectionChanged();
@@ -35,7 +37,7 @@ Q_SIGNALS:
     void selectedSigs(QList<qulonglong> ids, QList<QPointF> positions, bool is_src);
     void dropped(qulonglong id);
     void selectDrag(QPointF pos, bool is_src);
-    void selectDrop(bool is_src);
+    void selectDrop(QPointF pos, bool is_src);
 
 protected:
     bool eventFilter(QObject *object, QEvent *event);

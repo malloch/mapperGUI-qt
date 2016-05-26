@@ -33,12 +33,12 @@ ListView::ListView(QWidget *parent) :
             this, SLOT(selectedSigs(QList<qulonglong>, QList<QPointF>, bool)));
     connect(ui->source, SIGNAL(selectDrag(QPointF, bool)),
             this, SLOT(dragSelectedSigs(QPointF, bool)));
-    connect(ui->source, SIGNAL(selectDrop(bool)),
-            this, SLOT(dropSelectedSigs(bool)));
+    connect(ui->source, SIGNAL(selectDrop(QPointF, bool)),
+            this, SLOT(dropSelectedSigs(QPointF, bool)));
     connect(ui->destination, SIGNAL(selectDrag(QPointF, bool)),
             this, SLOT(dragSelectedSigs(QPointF, bool)));
-    connect(ui->destination, SIGNAL(selectDrop(bool)),
-            this, SLOT(dropSelectedSigs(bool)));
+    connect(ui->destination, SIGNAL(selectDrop(QPointF, bool)),
+            this, SLOT(dropSelectedSigs(QPointF, bool)));
 
 //    connect(ui->source, SIGNAL(dropped(qulonglong)), this, SLOT(dropped(qulonglong)));
 //    connect(ui->destination, SIGNAL(dropped(qulonglong)), this, SLOT(dropped(qulonglong)));
@@ -159,16 +159,47 @@ void ListView::selectedSigs(QList<qulonglong> ids, QList<QPointF> locations,
 void ListView::dragSelectedSigs(QPointF pos, bool is_src)
 {
     qDebug() << "ListView::dragSelectedSigs" << pos << is_src;
+    // check if should snap to src or dst
+    int snap = ui->maps->shouldSnap(pos.x());
+    if (snap == 0) {
+        // should snap to src
+        pos.setX(snap);
+        int y = ui->source->snap(pos.y());
+        qDebug() << "src snap " << y;
+        if (y >= 0)
+            pos.setY(y);
+    }
+    else if (snap != -1) {
+        // should snap to dst
+        pos.setX(snap);
+        int y = ui->destination->snap(pos.y());
+        qDebug() << "dst snap " << y;
+        if (y >= 0)
+            pos.setY(y);
+    }
     if (is_src) {
         ui->maps->drawDrag(selectedSrcPos, pos);
     }
-    else
+    else {
         ui->maps->drawDrag(selectedDstPos, pos);
+    }
 }
 
-void ListView::dropSelectedSigs(bool is_src)
+void ListView::dropSelectedSigs(QPointF pos, bool is_src)
 {
     qDebug() << "ListView::dropSelectedSigs" << is_src;
+    int snap = ui->maps->shouldSnap(pos.x());
+    qulonglong id = 0;
+    if (snap == 0) {
+        id = ui->source->itemAt(pos.y());
+    }
+    else if (snap > 0) {
+        id = ui->destination->itemAt(pos.y());
+    }
+    if (id) {
+        qDebug() << "dropped on id " << id;
+        Q_EMIT mapSigs(is_src ? selectedSrcIds : selectedDstIds, id);
+    }
     ui->maps->removeMap(0);
 }
 

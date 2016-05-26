@@ -26,6 +26,7 @@ public:
     void resize();
     void drawDrag(QList<QPointF>, QPointF);
     void selectAllMaps();
+    int shouldSnap(float x);
 
     class Edge : public QGraphicsItem
     {

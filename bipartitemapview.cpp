@@ -93,6 +93,7 @@ void BipartiteMapView::resize()
 
 void BipartiteMapView::clearSelected()
 {
+    selectedMapIds.clear();
     int updated = 0;
     for (auto const& item : scene->items()) {
         if (Edge *edge = qgraphicsitem_cast<Edge *>(item)) {
@@ -104,7 +105,6 @@ void BipartiteMapView::clearSelected()
     }
     if (updated) {
         scene->update();
-        selectedMapIds.clear();
         selectedMaps(selectedMapIds);
     }
 }
@@ -227,7 +227,7 @@ bool BipartiteMapView::eventFilter(QObject *object, QEvent *event)
         if (!(cast->modifiers() & Qt::ShiftModifier)) {
             clearSelected();
             // send qt SIGNAL to connection props display
-            selectedMaps(selectedMapIds);
+            Q_EMIT selectedMaps(selectedMapIds);
         }
         lastPos = cast->scenePos();
         mouseButtonPressed = true;
@@ -363,4 +363,14 @@ void BipartiteMapView::drawDrag(QList<QPointF> start, QPointF end)
         scene->addItem(new Edge(0, start, end, false));
     }
     scene->update();
+}
+
+int BipartiteMapView::shouldSnap(float x)
+{
+   float width = this->rect().width() - 2;
+   if (x < width * 0.3333)
+       return 0;
+   else if (x > width * 0.6667)
+       return width;
+   return -1;
 }

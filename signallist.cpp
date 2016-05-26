@@ -246,11 +246,14 @@ bool SignalList::eventFilter(QObject *object, QEvent *event)
         Q_EMIT selectDrag(pos, is_src);
         break;
     }
-    case QEvent::MouseButtonRelease:
-        if (dragging)
-            Q_EMIT selectDrop(is_src);
+    case QEvent::MouseButtonRelease: {
+        QPoint pos(cast->pos());
+        if (dragging) {
+            Q_EMIT selectDrop(pos, is_src);
+        }
         dragging = false;
         break;
+    }
     case QEvent::MouseButtonDblClick:
         break;
     default:
@@ -258,4 +261,23 @@ bool SignalList::eventFilter(QObject *object, QEvent *event)
     }
     event->setAccepted(true);
     return true;
+}
+
+int SignalList::snap(int y)
+{
+    // don't snap to devices
+    // snap to closest signal
+    QTreeWidgetItem* item = ui->tree->itemAt(10, y);
+    if (item) {
+        QRect rect = ui->tree->visualItemRect(item);
+        return rect.center().y();
+    }
+    return -1;
+    // if item is device, check if above or below midpoint
+}
+
+qulonglong SignalList::itemAt(int y)
+{
+    QTreeWidgetItem* item = ui->tree->itemAt(10, y);
+    return item ? item->data(0, Qt::UserRole).toULongLong() : 0;
 }

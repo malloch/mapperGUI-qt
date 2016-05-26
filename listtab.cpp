@@ -27,6 +27,8 @@ ListTab::ListTab(QTabWidget *parent, MapperStuff *_mapper_data) :
             this, SLOT(toggleSelectedMapsMuting()));
 //    connect(ui->listview, SIGNAL(selectedSigs(QList<qulonglong>, QList<QPointF>, bool)),
 //            this, SLOT(selectedSigs(QList<qulonglong>, QList<QPointF>, bool)));
+    connect(ui->listview, SIGNAL(mapSigs(QList<qulonglong>, qulonglong)),
+            this, SLOT(mapSigs(QList<qulonglong>,qulonglong)));
 
 //    ui->listview->installEventFilter(this);
 }
@@ -122,7 +124,6 @@ void ListTab::setSelectedMaps(QList<qulonglong> ids)
 //        ui->listview->clearSelection;
         return;
     }
-    qDebug() << "selected maps:" << ids;
     QList<int> mode;
     QList<bool> muted;
     QList<QString> expr;
@@ -146,6 +147,8 @@ void ListTab::releaseSelectedMaps()
         if (map)
             map.release();
     }
+    selectedMaps.clear();
+    ui->mapProps->clearProps();
 }
 
 void ListTab::toggleSelectedMapsMuting()
