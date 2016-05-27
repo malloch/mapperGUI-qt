@@ -43,7 +43,7 @@
      <property name="frameShadow">
       <enum>QFrame::Plain</enum>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0">
       <item>
        <widget class="QLabel" name="mapLabel">
         <property name="font">
@@ -56,6 +56,19 @@
         </property>
         <property name="indent">
          <number>6</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="hideUnmapped">
+        <property name="maximumSize">
+         <size>
+          <width>120</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>hide unmapped</string>
         </property>
        </widget>
       </item>

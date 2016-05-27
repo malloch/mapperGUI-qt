@@ -35,7 +35,7 @@ public Q_SLOTS:
     void selectedSigs(QList<qulonglong> ids, QList<QPointF> positions, bool is_src);
     void setModeLinear();
     void setModeExpression();
-    void expressionChanged();
+    void setExpression(QString expr);
     void mapSigs(QList<qulonglong> srcs, qulonglong dst);
     void unmapSigs(QList<qulonglong> srcs, qulonglong dst);
 

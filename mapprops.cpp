@@ -1,5 +1,8 @@
+#include <QDebug>
 #include "mapprops.h"
 #include "ui_mapprops.h"
+
+//TODO: syntax highlighting
 
 MapProps::MapProps(QWidget *parent) :
     QWidget(parent),
@@ -8,13 +11,13 @@ MapProps::MapProps(QWidget *parent) :
     ui->setupUi(this);
 
     connect(ui->checkBoxMuted, SIGNAL(toggled(bool)),
-                this, SIGNAL(muteChecked(bool)));
+                this, SIGNAL(setMuted(bool)));
 //    connect(ui->modeButtonLinear, SIGNAL(triggered(QAction*)),
 //            this, SIGNAL(linearModeButtonPressed()));
 //    connect(ui->modeButtonExpression, SIGNAL(pressed(QAction*)),
 //            this, SIGNAL(expressionModeButtonPressed()));
-//    connect(ui->expression, SIGNAL(textChanged()),
-//            this, SIGNAL(expressionChanged()));
+    connect(ui->expression, SIGNAL(returnPressed()),
+            this, SLOT(expressionChanged()));
 }
 
 MapProps::~MapProps()
@@ -45,9 +48,25 @@ void MapProps::displayProps(QList<int> mode, QList<bool> muted,
     ui->checkBoxMuted->setChecked(muted[0]);
 
     ui->expression->setEnabled(true);
-    ui->expression->setPlainText(expression[0]);
+    // check if expressions are identical
+    bool multipleExpr = false;
+    for (int i = 1; i < expression.length(); i++) {
+        if (expression[i].compare(expression[i-1])) {
+            multipleExpr = true;
+            break;
+        }
+    }
+    if (multipleExpr)
+        ui->expression->setText("multiple expressions");
+    else {
+        ui->expression->setText(expression[0]);
+        // check if expr is new
+        QString old = ui->history->toPlainText();
+        qDebug() << "hist: " << old;
+        if (!old.endsWith("\n"+expression[0]))
+            ui->history->appendPlainText(expression[0]);
+    }
 }
-
 
 void MapProps::clearProps()
 {
@@ -63,7 +82,7 @@ void MapProps::clearProps()
 //    ui->checkBoxCalibrating->setEnabled(false);
 }
 
-void MapProps::setMuting(int state)
+void MapProps::setMuted(int state)
 {
     Qt::CheckState checkState;
     switch (state) {
@@ -78,4 +97,18 @@ void MapProps::setMuting(int state)
         break;
     }
     ui->checkBoxMuted->setCheckState(checkState);
+}
+
+void MapProps::expressionChanged()
+{
+    QString expr = ui->expression->text();
+    qDebug() << "MapProps::expressionChanged to " << expr;
+    if (expr.isNull() || expr.isEmpty())
+        return;
+    // check if expr is new
+    QString old = ui->history->toPlainText();
+    qDebug() << "hist: " << old;
+    if (!old.endsWith("\n"+expr))
+        ui->history->appendPlainText(expr);
+    Q_EMIT setExpression(expr);
 }

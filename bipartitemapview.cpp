@@ -332,8 +332,6 @@ void BipartiteMapView::Edge::paint(QPainter *painter,
 
 void BipartiteMapView::drawDrag(QList<QPointF> start, QPointF end)
 {
-    // TODO: snap new map to list when appropriate
-
     float width = this->rect().width() - 2;
 
     // check if already dragging

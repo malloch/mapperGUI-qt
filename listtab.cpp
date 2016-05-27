@@ -30,6 +30,9 @@ ListTab::ListTab(QTabWidget *parent, MapperStuff *_mapper_data) :
     connect(ui->listview, SIGNAL(mapSigs(QList<qulonglong>, qulonglong)),
             this, SLOT(mapSigs(QList<qulonglong>,qulonglong)));
 
+    connect(ui->mapProps, SIGNAL(setExpression(QString)),
+            this, SLOT(setExpression(QString)));
+
 //    ui->listview->installEventFilter(this);
 }
 
@@ -174,7 +177,7 @@ void ListTab::toggleSelectedMapsMuting()
         }
         map.push();
     }
-    ui->mapProps->setMuting(muting);
+    ui->mapProps->setMuted(muting);
 }
 
 void ListTab::setModeLinear()
@@ -187,9 +190,13 @@ void ListTab::setModeExpression()
 
 }
 
-void ListTab::expressionChanged()
+void ListTab::setExpression(QString expr)
 {
-
+    for (auto id : selectedMaps) {
+        mapper::Map map = mapper_data->db.map(id);
+        if (map)
+            map.set_expression(expr.toStdString()).push();
+    }
 }
 
 void ListTab::selectedSigs(QList<qulonglong> ids, QList<QPointF> positions,

@@ -25,13 +25,16 @@ public:
     void displayProps(QList<int> mode, QList<bool> muted,
                       QList<QString> expression);
     void clearProps();
-    void setMuting(int state);
+    void setMuted(int state);
+
+public Q_SLOTS:
+    void expressionChanged();
 
 Q_SIGNALS:
-    void muteChecked(bool state);
-    void linearModeButtonPressed();
-    void expressionModeButtonPressed();
-    void expressionChanged(const QString& expression);
+    void setMuted(bool state);
+    void setModeLinear();
+    void setModeExpression();
+    void setExpression(const QString& expression);
 
 private:
     Ui::MapProps *ui;
