@@ -367,10 +367,12 @@ void BipartiteMapView::drawDrag(QList<QPointF> start, QPointF end)
 
 int BipartiteMapView::shouldSnap(float x)
 {
-   float width = this->rect().width() - 2;
-   if (x < width * 0.3333)
-       return 0;
-   else if (x > width * 0.6667)
-       return width;
-   return -1;
+    float width = this->rect().width() - 2;
+    if (x < 0)
+        x += width;
+    if (x < (width * 0.3333))
+        return 0;
+    else if (x > (width * 0.6667))
+        return width;
+    return -1;
 }

@@ -233,24 +233,28 @@ bool SignalList::eventFilter(QObject *object, QEvent *event)
             else
                 pos.setX(pos.x() - ui->frame->width());
         }
-        else {
-            if (pos.x() > 0) {
-                if (!dragging)
-                    break;
-                pos.setX(-1);
-            }
-//            else
-//                pos.setX(pos.x() * -1);
+        else if (pos.x() > 0) {
+            if (!dragging)
+                break;
+            pos.setX(-1);
         }
         dragging = true;
         Q_EMIT selectDrag(pos, is_src);
         break;
     }
     case QEvent::MouseButtonRelease: {
+        if (!dragging)
+            break;
         QPoint pos(cast->pos());
-        if (dragging) {
-            Q_EMIT selectDrop(pos, is_src);
+        if (is_src) {
+            if (pos.x() < ui->frame->width())
+                pos.setX(0);
+            else
+                pos.setX(pos.x() - ui->frame->width());
         }
+        else if (pos.x() > 0)
+            pos.setX(-1);
+        Q_EMIT selectDrop(pos, is_src);
         dragging = false;
         break;
     }
