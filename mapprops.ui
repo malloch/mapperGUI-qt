@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>585</width>
-    <height>222</height>
+    <height>243</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -48,6 +48,20 @@
        </item>
        <item>
         <widget class="RangeEditor" name="dstRange" native="true"/>
+       </item>
+       <item>
+        <widget class="Line" name="line_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="updateExprButton">
+         <property name="text">
+          <string>Update Expression</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

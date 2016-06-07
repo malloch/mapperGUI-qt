@@ -29,16 +29,15 @@ void MapProps::displayProps(QList<int> mode, QList<bool> muted,
                             QList<QString> expression)
 {
     ui->modeTabs->setEnabled(true);
-//    ui->modeButtonLinear->setEnabled(true);
 //    ui->modeTabs->setTabEnabled(1, true);
-//    ui->modeButtonExpression->setEnabled(true);
     switch (mode[0]) {
     case _MO_LINEAR:
+        qDebug() << "setting to mode LINEAR";
         ui->modeTabs->setCurrentIndex(1);
         break;
     case _MO_EXPRESSION:
+        qDebug() << "setting to mode EXPRESSION";
         ui->modeTabs->setCurrentIndex(0);
-//        ui->modeButtonExpression->setDown(true);
         break;
     default:
         break;
