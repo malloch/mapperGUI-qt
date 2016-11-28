@@ -10,8 +10,8 @@ MapProps::MapProps(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->checkBoxMuted, SIGNAL(toggled(bool)),
-                this, SIGNAL(setMuted(bool)));
+//    connect(ui->checkBoxMuted, SIGNAL(toggled(bool)),
+//                this, SIGNAL(setMuted(bool)));
 //    connect(ui->modeButtonLinear, SIGNAL(triggered(QAction*)),
 //            this, SIGNAL(linearModeButtonPressed()));
 //    connect(ui->modeButtonExpression, SIGNAL(pressed(QAction*)),
@@ -43,8 +43,8 @@ void MapProps::displayProps(QList<int> mode, QList<bool> muted,
         break;
     }
 
-    ui->checkBoxMuted->setEnabled(true);
-    ui->checkBoxMuted->setChecked(muted[0]);
+//    ui->checkBoxMuted->setEnabled(true);
+//    ui->checkBoxMuted->setChecked(muted[0]);
 
     ui->expression->setEnabled(true);
     // check if expressions are identical
@@ -65,6 +65,7 @@ void MapProps::displayProps(QList<int> mode, QList<bool> muted,
         if (!old.endsWith("\n"+expression[0]))
             ui->history->appendPlainText(expression[0]);
     }
+    ui->expression->setStyleSheet("QLineEdit{padding-left: 2px;color: black;}");
 }
 
 void MapProps::clearProps()
@@ -74,8 +75,8 @@ void MapProps::clearProps()
     ui->expression->clear();
 //    ui->expression->setEnabled(false);
 
-    ui->checkBoxMuted->setChecked(false);
-    ui->checkBoxMuted->setEnabled(false);
+//    ui->checkBoxMuted->setChecked(false);
+//    ui->checkBoxMuted->setEnabled(false);
 
 //    ui->checkBoxCalibrating->setChecked(false);
 //    ui->checkBoxCalibrating->setEnabled(false);
@@ -95,7 +96,7 @@ void MapProps::setMuted(int state)
         checkState = Qt::Unchecked;
         break;
     }
-    ui->checkBoxMuted->setCheckState(checkState);
+//    ui->checkBoxMuted->setCheckState(checkState);
 }
 
 void MapProps::expressionChanged()
@@ -109,5 +110,6 @@ void MapProps::expressionChanged()
     qDebug() << "hist: " << old;
     if (!old.endsWith("\n"+expr))
         ui->history->appendPlainText(expr);
+    ui->expression->setStyleSheet("QLineEdit{padding-left:2px;color:red;}");
     Q_EMIT setExpression(expr);
 }

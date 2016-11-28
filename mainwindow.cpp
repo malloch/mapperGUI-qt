@@ -1,10 +1,11 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    MapperWidget(parent, 0)
+    MapperWidget(parent, 0),
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 //    ui->tabs->layout()->setContentsMargins(0, 0, 0, 0);
@@ -40,7 +41,7 @@ void MainWindow::poll()
         mapper_data->ready = true;
         setWindowTitle("mapperGUI-qt");
     }
-//    if (count) {
+    if (count) {
 //        // drawing updates depend on current mode...
 //        if (data->deviceFlags) {
 //            foreach (Tab *tab, tabs)
@@ -57,7 +58,7 @@ void MainWindow::poll()
 //                tab->connectionEvent();
 //            data->connectionFlags = 0;
 //        }
-//    }
+    }
 
     // TODO: don't update unless tab is selected
 //    data->now = data->device.now();
@@ -81,6 +82,13 @@ void MainWindow::signalEvent(const mapper::Signal& sig, mapper_record_action act
 }
 
 void MainWindow::mapEvent(const mapper::Map& map, mapper_record_action action)
+{
+    ;
+}
+
+void MainWindow::signalUpdateEvent(const mapper::Signal& sig, mapper_id instance,
+                                   const void *value, int count,
+                                   mapper_timetag_t *timetag)
 {
     ;
 }

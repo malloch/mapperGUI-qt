@@ -54,8 +54,8 @@ LIBS += -L$$PWD/../../../../../../usr/local/lib/ -lmapper-0
 LIBS += -L$$PWD/../../../../../../usr/local/lib/ -llo
 
 INCLUDEPATH += $$PWD/../../../../../../usr/local/include/mapper-0
-INCLUDEPATH += $$PWD/../../../../../../usr/include/
-DEPENDPATH += $$PWD/../../../../../../usr/local/include/mapper-0
+#INCLUDEPATH += $$PWD/../../../../../../usr/include/
+#DEPENDPATH += $$PWD/../../../../../../usr/local/include/mapper-0
 
 INCLUDEPATH += $$PWD/../../../../../../usr/local/include
-DEPENDPATH += $$PWD/../../../../../../usr/local/include
+#DEPENDPATH += $$PWD/../../../../../../usr/local/include

@@ -56,11 +56,14 @@ void SignalList::setRole(bool _is_src)
 
 int SignalList::addDevice(qulonglong id, const QString &name)
 {
+//    qDebug() << "SignalList::addDevice" << id << " : " << name << " : " << is_src;
     for (int i = 0; i < ui->tree->topLevelItemCount(); i++) {
         QTreeWidgetItem *dev = ui->tree->topLevelItem(i);
         QVariant dev_id = dev->data(0, Qt::UserRole);
-        if (dev_id.toULongLong() == id)
+        if (dev_id.toULongLong() == id) {
+//            qDebug() << "  skipping device add, already found";
             return -1;
+        }
     }
     QTreeWidgetItem *qdev = new QTreeWidgetItem((QTreeWidget*)0,
                                                 QStringList(name));
@@ -89,6 +92,7 @@ void SignalList::removeDevice(qulonglong id)
 void SignalList::addSignal(qulonglong dev_id, qulonglong sig_id,
                            const QString &signame, QChar type, qreal length)
 {
+//    qDebug() << "SignalList::addSignal" << dev_id << " : " << sig_id << " : " << signame;
     // find device
     QTreeWidgetItem *dev;
     int i;
@@ -99,6 +103,7 @@ void SignalList::addSignal(qulonglong dev_id, qulonglong sig_id,
             break;
     }
     if (i == ui->tree->topLevelItemCount()) {
+//        qDebug() << "  skpping";
         return;
     }
 
@@ -109,6 +114,7 @@ void SignalList::addSignal(qulonglong dev_id, qulonglong sig_id,
         QVariant temp = sig->data(0, Qt::UserRole);
         if (temp.toULongLong() == sig_id) {
             // todo: overwrite metadata?
+//            qDebug() << "  signal already found";
             return;
         }
     }

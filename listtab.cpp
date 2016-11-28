@@ -48,6 +48,9 @@ void ListTab::deviceEvent(const mapper::Device& dev, mapper_record_action action
 
     switch (action) {
     case MAPPER_ADDED:
+        qDebug() << "MAPPER_ADDED" << QString::fromStdString(dev.name()) << dev.num_signals();
+        qDebug() << "  out" << dev.num_signals(MAPPER_DIR_OUTGOING);
+        qDebug() << "  in" << dev.num_signals(MAPPER_DIR_INCOMING);
         ui->listview->addDevice(dev.id(), QString::fromStdString(dev.name()),
                                 dev.num_signals(MAPPER_DIR_OUTGOING),
                                 dev.num_signals(MAPPER_DIR_INCOMING));

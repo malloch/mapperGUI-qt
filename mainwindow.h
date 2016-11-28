@@ -32,7 +32,7 @@ public:
     void mapEvent(const mapper::Map& map, mapper_record_action action) Q_DECL_OVERRIDE;
     void signalUpdateEvent(const mapper::Signal& sig, mapper_id instance,
                            const void *value, int count,
-                           mapper_timetag_t *timetag) {}
+                           mapper_timetag_t *timetag) Q_DECL_OVERRIDE;
 
 
 private Q_SLOTS:

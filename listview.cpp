@@ -62,7 +62,7 @@ void ListView::clear()
 void ListView::addDevice(qulonglong id, const QString & name,
                          int num_outputs, int num_inputs)
 {
-    printf("listView::addDevice '%s'\n", name.toStdString().c_str());
+    qDebug() << "listView::addDevice" << name << " : " << num_outputs << " : " << num_inputs;
     if (num_outputs)
         ui->source->addDevice(id, name);
     else

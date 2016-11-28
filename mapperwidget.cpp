@@ -3,13 +3,13 @@
 
 MapperWidget::MapperWidget(QWidget *parent, MapperStuff *_data)
 {
-//    qDebug() << "making new mapperwidget\n" << _data;
+    qDebug() << "making new mapperwidget\n" << _data;
     if (_data) {
         mapper_data = _data;
         own_data = false;
     }
     else {
-//        qDebug() << "making new mapperstuff\n";
+        qDebug() << "making new mapperstuff\n";
         mapper_data = new MapperStuff;
         own_data = true;
         mapper_data->db.add_device_callback(deviceHandler, mapper_data);
@@ -50,6 +50,7 @@ void deviceHandler(mapper_database db, mapper_device dev,
                    mapper_record_action action, const void *user)
 {
 //    printf("deviceHandler: '%s'\n", mapper_device_name(dev));
+    qDebug() << "QtMonitor got update from device" << mapper_device_name(dev);
 
     MapperStuff *data = (MapperStuff*) user;
     // filter out our own signals

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <mapper/mapper_cpp.h>
+#include <QDebug>
 
 // function prototypes
 void deviceHandler(mapper_database db, mapper_device dev,
