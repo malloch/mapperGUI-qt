@@ -118,13 +118,17 @@ void ListView::addMap(qulonglong id, QList<qulonglong> srcs, qulonglong dst,
 //    int tempi = 0;
     for (auto const& src : srcs) {
         p = signalPosition(src);
-        if (p.isNull())
+        if (p.isNull()) {
+            ui->maps->removeMap(id);
             return;
+        }
         srcpos << p;
     }
     QPointF dstpos = signalPosition(dst);
-    if (dstpos.isNull())
+    if (dstpos.isNull()) {
+        ui->maps->removeMap(id);
         return;
+    }
     ui->maps->addMap(id, srcpos, dstpos, muted);
 }
 
