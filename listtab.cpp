@@ -41,12 +41,12 @@ ListTab::~ListTab()
     delete ui;
 }
 
-void ListTab::deviceEvent(const mapper::Device& dev, mapper_record_action action)
+void ListTab::deviceEvent(const mapper::Device& dev, mapper_record_event event)
 {
     int direction = (  (dev.num_signals(MAPPER_DIR_INCOMING) ? MAPPER_DIR_INCOMING : 0)
                      | (dev.num_signals(MAPPER_DIR_OUTGOING) ? MAPPER_DIR_OUTGOING : 0));
 
-    switch (action) {
+    switch (event) {
     case MAPPER_ADDED:
         qDebug() << "MAPPER_ADDED" << QString::fromStdString(dev.name()) << dev.num_signals();
         qDebug() << "  out" << dev.num_signals(MAPPER_DIR_OUTGOING);
@@ -63,13 +63,13 @@ void ListTab::deviceEvent(const mapper::Device& dev, mapper_record_action action
     }
 }
 
-void ListTab::signalEvent(const mapper::Signal& sig, mapper_record_action action)
+void ListTab::signalEvent(const mapper::Signal& sig, mapper_record_event event)
 {
-    switch (action) {
+    switch (event) {
     case MAPPER_ADDED:
     case MAPPER_MODIFIED:
         // may need to add device as well
-        deviceEvent(sig.device(), action);
+        deviceEvent(sig.device(), MAPPER_ADDED);
         ui->listview->addSignal(sig.device().id(), sig.id(),
                                 QString::fromStdString(sig.name()),
                                 QChar(sig.type()), sig.length(),
@@ -88,9 +88,9 @@ void ListTab::signalEvent(const mapper::Signal& sig, mapper_record_action action
     }
 }
 
-void ListTab::mapEvent(const mapper::Map& map, mapper_record_action action)
+void ListTab::mapEvent(const mapper::Map& map, mapper_record_event event)
 {
-    switch (action) {
+    switch (event) {
     case MAPPER_ADDED:
     case MAPPER_MODIFIED: {
         QList<qulonglong> srcs;
@@ -167,14 +167,14 @@ void ListTab::toggleSelectedMapsMuting()
         if (map.muted()) {
             if (muting == -1)
                 muting = 0;
-            else if (muting = 1)
+            else if (muting == 1)
                 muting = 2;
             map.set_muted(false);
         }
         else {
-            if (muting = -1)
+            if (muting == -1)
                 muting = 1;
-            else if (muting = 0)
+            else if (muting == 0)
                 muting = 2;
             map.set_muted(true);
         }
@@ -198,7 +198,9 @@ void ListTab::setExpression(QString expr)
     for (auto id : selectedMaps) {
         mapper::Map map = mapper_data->db.map(id);
         if (map)
-            map.set_expression(expr.toStdString()).push();
+            map.set_mode(MAPPER_MODE_EXPRESSION)
+               .set_expression(expr.toStdString())
+               .push();
     }
 }
 
@@ -235,17 +237,18 @@ void ListTab::selectedSigs(QList<qulonglong> ids, QList<QPointF> positions,
 
 void ListTab::mapSigs(QList<qulonglong> srcIds, qulonglong dstId)
 {
-    std::vector<mapper::Signal> srcSigs;
-    mapper::Signal dstSig = mapper_data->db.signal(dstId);
-    if (!dstSig)
+    std::vector<mapper::Signal> srcSigs, dstSigs;
+    mapper::Signal tmp = mapper_data->db.signal(dstId);
+    if (!tmp)
         return;
+    dstSigs.push_back(tmp);
     for (qulonglong id : srcIds) {
-        mapper::Signal tmp = mapper_data->db.signal(id);
+        tmp = mapper_data->db.signal(id);
         if (!tmp)
             return;
         srcSigs.push_back(tmp);
     }
-    mapper::Map map(srcSigs, dstSig);
+    mapper::Map map(srcSigs, dstSigs);
     map.push();
 }
 

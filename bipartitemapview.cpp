@@ -36,6 +36,7 @@ void BipartiteMapView::clear()
 void BipartiteMapView::addMap(qulonglong id, QList<QPointF> srcs, QPointF dst,
                               bool muted)
 {
+    qDebug() << "adding MAP" << id << "with" << srcs.length() << "sources";
     float width = this->rect().width() - 2;
     for (auto& src : srcs)
         src.setX(src.x() * width);
@@ -203,12 +204,13 @@ void BipartiteMapView::updateSelected(const QPointF &newPos)
             updated++;
             edge->selected = true;
             selectedMapIds << edge->id;
-            // send qt SIGNAL to connection props display
-            selectedMaps(selectedMapIds);
         }
     }
-    if (updated)
+    if (updated) {
+        // send qt SIGNAL to connection props display
+        selectedMaps(selectedMapIds);
         scene->update();
+    }
     lastPos = newPos;
 }
 
@@ -306,9 +308,11 @@ void BipartiteMapView::Edge::paint(QPainter *painter,
         srcX += src.x();
     }
     srcX /= (srcs.length() + 1);
-    halfwidth = (halfwidth + srcX) * 0.5;
+//    halfwidth = (halfwidth + srcX) * 0.5;
 
+    int i = 0;
     for (auto const& src : srcs) {
+        qDebug() << "drawing source" << i++ << "of" << srcs.length();
         path->moveTo(src.x(), src.y());
         path->cubicTo(halfwidth, src.y(),
                       halfwidth, dst.y(),

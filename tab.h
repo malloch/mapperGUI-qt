@@ -15,9 +15,9 @@ public:
     ~Tab();
 
 //    void update() = 0;
-    void deviceEvent(const mapper::Device& dev, mapper_record_action action);
-    void signalEvent(const mapper::Signal& sig, mapper_record_action action);
-    void mapEvent(const mapper::Map& map, mapper_record_action action);
+    void deviceEvent(const mapper::Device& dev, mapper_record_event event);
+    void signalEvent(const mapper::Signal& sig, mapper_record_event event);
+    void mapEvent(const mapper::Map& map, mapper_record_event event);
     void signalUpdateEvent(const mapper::Signal& sig, mapper_id instance,
                            const void *value, int count,
                            mapper_timetag_t *timetag);

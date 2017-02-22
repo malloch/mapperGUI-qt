@@ -20,7 +20,7 @@ public:
     void setRole(bool _is_src);
     int addDevice(qulonglong id, const QString & name);
     void removeDevice(qulonglong id);
-    void addSignal(qulonglong dev_id, qulonglong qig_id, const QString &signame,
+    void addSignal(qulonglong dev_id, qulonglong sig_id, const QString &signame,
                    QChar type, qreal length);
     void removeSignal(qulonglong id);
     QPointF signalPosition(qulonglong id);

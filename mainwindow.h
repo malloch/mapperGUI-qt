@@ -27,9 +27,9 @@ public:
 //    void signalEvent(mapper_signal sig, mapper_record_action action) Q_DECL_OVERRIDE;
 //    void mapEvent(mapper_map map, mapper_record_action action) Q_DECL_OVERRIDE;
     void update();
-    void deviceEvent(const mapper::Device& dev, mapper_record_action action) Q_DECL_OVERRIDE;
-    void signalEvent(const mapper::Signal& sig, mapper_record_action action) Q_DECL_OVERRIDE;
-    void mapEvent(const mapper::Map& map, mapper_record_action action) Q_DECL_OVERRIDE;
+    void deviceEvent(const mapper::Device& dev, mapper_record_event event) Q_DECL_OVERRIDE;
+    void signalEvent(const mapper::Signal& sig, mapper_record_event event) Q_DECL_OVERRIDE;
+    void mapEvent(const mapper::Map& map, mapper_record_event event) Q_DECL_OVERRIDE;
     void signalUpdateEvent(const mapper::Signal& sig, mapper_id instance,
                            const void *value, int count,
                            mapper_timetag_t *timetag) Q_DECL_OVERRIDE;

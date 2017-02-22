@@ -7,11 +7,11 @@
 
 // function prototypes
 void deviceHandler(mapper_database db, mapper_device dev,
-                   mapper_record_action a, const void *user);
+                   mapper_record_event event, const void *user);
 void signalHandler(mapper_database db, mapper_signal sig,
-                   mapper_record_action a, const void *user);
+                   mapper_record_event event, const void *user);
 void mapHandler(mapper_database db, mapper_map map,
-                mapper_record_action a, const void *user);
+                mapper_record_event event, const void *user);
 
 class MapperWidget;
 class MapperStuff
@@ -55,9 +55,9 @@ public:
     void addMapCallback();
 
 //    virtual void update() = 0;
-    virtual void deviceEvent(const mapper::Device& dev, mapper_record_action action) = 0;
-    virtual void signalEvent(const mapper::Signal& sig, mapper_record_action action) = 0;
-    virtual void mapEvent(const mapper::Map& map, mapper_record_action action) = 0;
+    virtual void deviceEvent(const mapper::Device& dev, mapper_record_event event) = 0;
+    virtual void signalEvent(const mapper::Signal& sig, mapper_record_event event) = 0;
+    virtual void mapEvent(const mapper::Map& map, mapper_record_event event) = 0;
     virtual void signalUpdateEvent(const mapper::Signal& sig, mapper_id instance,
                                    const void *value, int count,
                                    mapper_timetag_t *timetag) = 0;

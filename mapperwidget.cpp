@@ -47,7 +47,7 @@ void MapperWidget::addMapCallback()
 }
 
 void deviceHandler(mapper_database db, mapper_device dev,
-                   mapper_record_action action, const void *user)
+                   mapper_record_event event, const void *user)
 {
 //    printf("deviceHandler: '%s'\n", mapper_device_name(dev));
     qDebug() << "QtMonitor got update from device" << mapper_device_name(dev);
@@ -56,16 +56,16 @@ void deviceHandler(mapper_database db, mapper_device dev,
     // filter out our own signals
     if (!data->ready)
         return;
-    if (action == MAPPER_ADDED) {
+    if (event == MAPPER_ADDED) {
         // autosubscribe to future updates
         data->db.subscribe(dev, MAPPER_OBJ_ALL, -1);
     }
     for (auto tab : data->deviceCallbacks)
-        tab->deviceEvent(dev, action);
+        tab->deviceEvent(dev, event);
 }
 
 void signalHandler(mapper_database db, mapper_signal _sig,
-                   mapper_record_action action, const void *user)
+                   mapper_record_event event, const void *user)
 {
     mapper::Signal sig(_sig);
 //    qDebug() << "QtMonitor got update from signal" << mapper_signal_name(_sig);
@@ -77,25 +77,24 @@ void signalHandler(mapper_database db, mapper_signal _sig,
 //    qDebug() << data << "has" << data->signalCallbacks.count() << "callbacks";
     for (auto tab : data->signalCallbacks) {
 //        qDebug() << "calling signal event";
-        tab->signalEvent(sig, action);
+        tab->signalEvent(sig, event);
     }
 }
 
 void mapHandler(mapper_database db, mapper_map _map,
-                mapper_record_action action, const void* user)
+                mapper_record_event event, const void* user)
 {
-//    printf("QtMonitor got update from map ");
-//    if (map->num_sources > 1)
-//        printf("[");
-//    for (int i = 0; i < map->num_sources; i++)
-//        printf("%s, ", map->sources[i].signal->name);
-//    printf("\b\b%s -> %s", map->num_sources > 1 ? "[" : "", map->destination.signal->name);
-
     mapper::Map map(_map);
+
+    qDebug() << "QtMonitor got update from MAP ";
+    for (int i = 0; i < map.num_sources(); i++)
+        qDebug() << "  from: " << map.source(i).signal().name().c_str();
+    qDebug() << "  to: " << map.destination(0).signal().name().c_str();
+
     MapperStuff *data = (MapperStuff*) user;
     if (!data->ready)
         return;
     for (auto tab : data->mapCallbacks)
-        tab->mapEvent(map, action);
+        tab->mapEvent(map, event);
 }
 

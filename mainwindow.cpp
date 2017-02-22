@@ -71,17 +71,17 @@ void MainWindow::update()
     ;
 }
 
-void MainWindow::deviceEvent(const mapper::Device& dev, mapper_record_action action)
+void MainWindow::deviceEvent(const mapper::Device& dev, mapper_record_event event)
 {
     ;
 }
 
-void MainWindow::signalEvent(const mapper::Signal& sig, mapper_record_action action)
+void MainWindow::signalEvent(const mapper::Signal& sig, mapper_record_event event)
 {
     ;
 }
 
-void MainWindow::mapEvent(const mapper::Map& map, mapper_record_action action)
+void MainWindow::mapEvent(const mapper::Map& map, mapper_record_event event)
 {
     ;
 }

@@ -23,7 +23,8 @@ public:
                    int num_inputs);
     void removeDevice(qulonglong id);
 
-    void addSignal(qulonglong dev_id, qulonglong sig_id, const QString &signame,
+    void addSignal(qulonglong dev_id,
+                   qulonglong sig_id, const QString &signame,
                    QChar type, qreal length, bool is_output);
     void removeSignal(qulonglong id);
     QPointF signalPosition(qulonglong id);

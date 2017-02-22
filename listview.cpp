@@ -80,8 +80,9 @@ void ListView::removeDevice(qulonglong id)
     ui->destination->removeDevice(id);
 }
 
-void ListView::addSignal(qulonglong dev_id, qulonglong sig_id,
-                         const QString &signame, QChar type, qreal length,
+void ListView::addSignal(qulonglong dev_id,
+                         qulonglong sig_id, const QString &signame,
+                         QChar type, qreal length,
                          bool is_output)
 {
     qDebug() << "listView::addSignal" << signame << is_output;

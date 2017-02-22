@@ -56,12 +56,12 @@ void SignalList::setRole(bool _is_src)
 
 int SignalList::addDevice(qulonglong id, const QString &name)
 {
-//    qDebug() << "SignalList::addDevice" << id << " : " << name << " : " << is_src;
+    qDebug() << "SignalList::addDevice" << id << " : " << name << " : " << is_src;
     for (int i = 0; i < ui->tree->topLevelItemCount(); i++) {
         QTreeWidgetItem *dev = ui->tree->topLevelItem(i);
         QVariant dev_id = dev->data(0, Qt::UserRole);
         if (dev_id.toULongLong() == id) {
-//            qDebug() << "  skipping device add, already found";
+            qDebug() << "  skipping device add, already found";
             return -1;
         }
     }
@@ -89,21 +89,24 @@ void SignalList::removeDevice(qulonglong id)
     }
 }
 
-void SignalList::addSignal(qulonglong dev_id, qulonglong sig_id,
-                           const QString &signame, QChar type, qreal length)
+void SignalList::addSignal(qulonglong dev_id,
+                           qulonglong sig_id, const QString &signame,
+                           QChar type, qreal length)
 {
-//    qDebug() << "SignalList::addSignal" << dev_id << " : " << sig_id << " : " << signame;
+    qDebug() << "SignalList::addSignal" << dev_id << " : " << sig_id << " : " << signame;
     // find device
     QTreeWidgetItem *dev;
     int i;
+    qDebug() << "top level itme count:" << ui->tree->topLevelItemCount();
     for (i = 0; i < ui->tree->topLevelItemCount(); i++) {
+        qDebug() << "checking top-level item";
         dev = ui->tree->topLevelItem(i);
         QVariant temp = dev->data(0, Qt::UserRole);
         if (temp.toULongLong() == dev_id)
             break;
     }
     if (i == ui->tree->topLevelItemCount()) {
-//        qDebug() << "  skpping";
+        qDebug() << "  skipping";
         return;
     }
 

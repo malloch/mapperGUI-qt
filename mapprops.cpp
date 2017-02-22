@@ -33,11 +33,11 @@ void MapProps::displayProps(QList<int> mode, QList<bool> muted,
     switch (mode[0]) {
     case _MO_LINEAR:
         qDebug() << "setting to mode LINEAR";
-        ui->modeTabs->setCurrentIndex(1);
+        ui->modeTabs->setCurrentIndex(0);
         break;
     case _MO_EXPRESSION:
         qDebug() << "setting to mode EXPRESSION";
-        ui->modeTabs->setCurrentIndex(0);
+        ui->modeTabs->setCurrentIndex(1);
         break;
     default:
         break;
@@ -71,7 +71,7 @@ void MapProps::displayProps(QList<int> mode, QList<bool> muted,
 void MapProps::clearProps()
 {
     ui->modeTabs->setEnabled(false);
-    ui->modeTabs->setCurrentIndex(0);
+//    ui->modeTabs->setCurrentIndex(0);
     ui->expression->clear();
 //    ui->expression->setEnabled(false);
 
